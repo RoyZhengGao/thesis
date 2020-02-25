@@ -1,0 +1,54 @@
+\section{Experiments}  \label{sc:exp}
+\subsection{Dataset}  \label{sc:dataset}
+As one of the largest e-commerce ecosystems, Alibaba owns multiple online businesses, where users could try different services via the same login ID. For this experiment, I employ three services from Alibaba including an online shopping website, a digital news portal and a cooking recipe website. The online shopping website is regarded as the main graph because it is Alibaba core service having the largest number of active users. By contrast, the other two services are regarded as sparse graphs. In the online shopping website, each object refers to a product for sale, and links are user purchase behaviors on products. In the digital news portal, each object refers to a news article, and links are user reads on news. In the cooking recipe website, each object refers to a cooking recipe, and links mean that users follow recipe instructions. 
+
+To prove my model robustness with respect to the graph size, two cross-graph datasets are constructed in different scales, which are showed in Table \ref{tab:dataset}. The SH-NE dataset is the cross-graph dataset constructed by the shopping graph and news graph, which is ten times larger than the SH-CO dataset constructed by the shopping graph and recipe graph. Users are categorized into three different types including \textit{MU} (mutual users appeared in both graphs),  \textit{MO} (users only appeared in the main graph), and  \textit{SO} (users only appeared in the sparse graph). Note that, only mutual user triplets are used for training.
+
+\begin{table}[h]
+	% \scriptsize
+	
+%	\small
+	\centering
+%	\renewcommand{\tabcolsep}{1.5pt}
+	% \renewcommand\arraystretch{0.5}
+	\begin{tabular}{ccccccccc} 
+		\toprule
+		\multirow{2}{*}{\textbf{Dataset}}& \multirow{2}{*}{\textbf{\#MU}}&\multicolumn{3}{c}{\textbf{Main Graph}}& \multicolumn{3}{c}{\textbf{Sparse Graph}}\\ \cmidrule(lr){3-8}
+		&  &\textbf{\#MO}&\textbf{\#Object}& \textbf{\#Link}&\textbf{\#SO}&\textbf{\#Object}& \textbf{\#Link}\\ \midrule
+		\textbf{SH-NE}& 105,702 & 392,549 & 135,320 & 17,352,482  & 26,133 & 9,377 & 881,721\\ 
+		\textbf{SH-CO}& 1,029  & 1,543  &23,881 & 1,161,293& 719  & 3,739 &147,266\\\bottomrule
+	\end{tabular}
+	% 	\vspace{-0.5em} 
+	\caption{Statistics of Two cross-graph datasets.}
+	\label{tab:dataset}
+	% 	\vspace{-1em} 
+\end{table}  
+
+Both datasets are built by taking a week of user behaviors from 09/20/2018 to 09/26/2018. In this paper, for two sparse graphs, I aim to predict user pairwise community labels (calculated from enriched seven-day user behaviors) using sparse user behaviors (the first four-day user behaviors, arbitrarily defined in this paper).
+
+To construct my ground truth data, I run all baseline models (will be introduced in Section \ref{sc:baseline}) on both seven-day sparse graphs which are assumed to contain sufficient information for detecting user communities. Only mutual user communities agreed by all seven baselines are kept, from which mutual user triplets are subsequently selected. In this paper, I define three types to label pairwise community closeness for a mutual user triplet, including ``\textit{closer}'', ``\textit{similar}'', and ``\textit{farther}'' (detailed definition is in Section \ref{sc:to}). Equal number of triplets are randomly selected for each label type. In total, there are 207,291 triplets in SH-NE dataset and 20,313 triplets in SH-CO dataset for testing propose. 
+
+Training data generation is the same as ground truth data construction except using first four-day user behaviors. In total, there are 2,072,905 triplets in SH-NE dataset and  203,123 triplets in SH-CO dataset, from which 90\% of the triplets are used for training and 10\% for validation.
+
+In both training and testing process, my model input is user triplets with first four-day behavior information. Their difference is that the pseudo labels for training are generated from four-day user behaviors, while the ground truth labels for testing are generated from whole seven-day user behaviors in sparse graphs.
+
+
+\subsection{Baselines and Settings} \label{sc:baseline}
+As there is neither reliable nor open-sourced studies on pairwise cross-graph community detection, I have no direct comparative models. In this paper, I select one random model and six compromised but state-of-art baselines which are originally designed for whole graph community detection. In all seven baselines, after user communities are detected, I calculate user triplet labels via Eq. \ref{eq:y}. As all baselines are trained on the sparse graph with first four-day user behavior and the main graph, they bring no information loss compared with my model. Here is the details of how these baselines calculate user communities:
+
+\begin{itemize}
+	\item \textbf{random}: users are randomly assigned to a given number of communities.
+	\item \textbf{Infomap}: A random walk based method to detect user communities by minimizing description length of walk paths\footnote{https://github.com/mapequation/infomap}.
+	\item \textbf{DNR}: A novel nonlinear reconstruction method to detect communities by adopting deep neural networks on pairwise constraints among graph nodes\footnote{http://yangliang.github.io/code/}.
+	\item \textbf{LSH}: A random walk based method for community detection in large-scale graphs\footnote{https://github.com/melifluos/LSH-community-detection}.
+	\item \textbf{node2vec}: A skip-gram model to generate node emebeddings based on guided random walks on graphs. And K-means method subsequently calculates communities from the generated embeddings\footnote{https://github.com/snap-stanford/snap/\label{fn:snap}}.
+	\item \textbf{BigClam}: A non-negative matrix factorization method to detect overlapping communities in large scale graphs\footref{fn:snap}.
+	\item \textbf{WMW}: A fast heuristic method for hierarchical community detection inspired by agglomerative hierarchical clustering\footnote{https://github.com/eduarc/WMW}. 
+\end{itemize}
+
+
+
+The result is reported with best hyper-parameters from grid search. Empirically, a mini-batch (size = 200) Adam optimizer is chosen to train my model with learning rate as 0.01. Community number on both graphs is $K = 50$ (Eq. \ref{eq:cc}). Community constraint weight is $\alpha = 0.1$ (Eq. \ref{eq:loss}). Masked training rate in the main graph is $\rho = 0.05$. The model is trained for 1000 epochs in order to get a converged result. 
+
+Model performance is evaluated from both classification and retrieval viewpoints. From classification aspect, Accuracy (ACC), F1-macro (F1) and Matthews Correlation Coefficient (MCC) are reported metrics.
+From retrieval aspect, Mean Reciprocal Rank (MRR), Normalized Discounted Cumulative Gain (NDCG) and Mean Average Precision (MAP) are reported metrics. All of them are fundamental metrics widely used for model evaluation.  

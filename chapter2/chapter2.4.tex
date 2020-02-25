@@ -1,0 +1,139 @@
+\section{Applications}
+\subsection{Interdisciplinary Supports}
+\subsubsection{Social Media}
+\cite{papadopoulos2012community},\cite{latouche2011overlapping},\cite{xie2014community},\cite{kumar2017army},\cite{cheng2014community},\cite{danescu2013no},\cite{leskovec2012learning},\cite{kairam2012life},\cite{gargi2011large},\cite{sachan2012using},\cite{wang2010community},\cite{traud2011comparing},\cite{botta2017analysis},\cite{ozer2016community},\cite{natarajan2013community},\cite{zhao2012topic},
+
+
+
+\subsubsection{Miscellaneous Domains}
+\cite{garcia2018applications},\cite{liu2014network},\cite{nepusz2012detecting},\cite{lewis2010function},\cite{bassett2015extraction} ,\cite{gupta2011evolutionary},\cite{chakraborty2013overcite},\cite{coca2016musical},\cite{fang2016community},\cite{hu2016co},
+
+
+\subsection{Datasets  and Packages}
+\cite{leskovec2015snap} 
+\cite{smoot2010cytoscape},\cite{de2015muxviz},\cite{hagberg2013networkx},\cite{csardi2006igraph},\cite{de2018exploratory},\cite{ghim2014netminer},\cite{adamcsek2006cfinder},\cite{bastian2009gephi},\cite{borgatti2014ucinet},\cite{carley2014ora}, 
+
+
+Even we understand how those state-of-art algorithms work, it is still not enough for us to apply those algorithms as they are usually too complicated to implement in a short time. Hence, it is necessary to have some open source softwares to make it easier for us to run some baseline algorithms or use those algorithms to better understand our networks. Github is one of the largest code repository so far in the world, and many free softwares always have either their own websites or deposit their code on Github. Based on our empirical study, we find some of the softwares are reliable to support solving community detection problems.
+
+For those packages and softwares, embedded algorithm is one key factor and visualization is another key factor to evaluate whether a package is good or not. Because as we know that the network is unstructured and messy. Sometimes even though we get a community partition result, we still can't tell whether the result is good or bad intuitively. Hence, if there is a way to visualize the community partition result, we can better judge whether our model is capable or not from our eyes directly. In this section, all softwares introduced her  either have a Graphical User Interfaces (GUIs), or are written scripting/ programming languages. The GUI based packages are easier to learn, whereas the scripting tools are more powerful and extensible. Well-known and well-documented GUI packages include NetMiner, UCINet, Pajek , GUESS, ORA, Cytoscape, muxViz (opensource) and Gephi. Popularly used scripting tools include R statistical programming language, NetMiner with Python scripting engine, igraph (packages for R, Python, C/C++), the NetworkX library for Python, and the Social Network Analysis Package (SNAP) for large-scale network analysis in C++ and Python. These tools are also well-documented. Even though some of these packages have much functionality and features than others, they are more difficult to learn compared with GUIs.
+
+\subsubsection{Graphical User Interfaces}
+\textbf{Pajek}
+
+Pajek \cite{de2018exploratory} is a public network analysis  program particularly  for analysis and visualization
+of very large graphs. It is free and can be downloaded publicly from its official website \footnote{http://vlado.fmf.uni-lj.si/pub/networks/pajek/} for non-commercial use. It contains tools for analysing and visualizing various of graphs networks from different domains, such as visualizing the collaboration relationship between academic authors (collaboration networks), social relationship between online users (Internet
+networks), checking for related academic works (citation networks),  showing the protein-receptor interaction for healthcare usage and many. In its GUI, it offers some default datasets which can be used for testing and visualizing those networks. 
+
+In Pajak, it aims to divide a large graph into  several smaller modules where nodes with closer distances can be located near each other. After that, many advanced and complicated methods can be further utilized on smaller components which manually or automatically detected by users via Pajak . What's more,  It helps users with less technical background to understand and analysis networks with complex structure. Many advanced and powerful visualization tools and graph analysis methods are all implemented in the package. 
+
+It allows up to run many  detailed analysis to explore how the graphs look like in terms of many important metrics, such as the number of triangles in the graph, the modularity coefficient of the graph, etc. By detecting community structures  and offering many modularity or block model based methods. It can also help to identify the node importance in graphs via Page Rank models. The methods offered in Pajek is especially good for large sparse networks.
+
+Many visualization based models or metrics are also embedded in the packages. It can help to better render the graph into a 2-D plot so that to directly visualize the graph to users.  Moreover, it offers some methods to calculate  basic metrics to assess the fitness or closeness of the graph structure as well as  community structure. For example, in one of its embedded algorithm, it finds communities in the network using Louvain method and Visualization Of Similarities (VOS). Here we show the interface of the Pajek software in Figure \ref{fig:pajek}.
+
+\textbf{NetMiner}
+
+Cyram NetMiner \cite{ghim2014netminer} is a software tool for exploratory analysis and visualization of network data by integrating
+standard social network analysis (SNA) methodologies with
+modern visualization network techniques. It is more or less similar with Pajek software but has more interactive function than Pajek. Via this software, it is easier to help users better the graph underlying pattern and network structure in social network. Unfortunately, it is a paid service. In its interactive interface, Cyram NetMiner  can be used for social network analysis, teaching and presentation. It can be used under different 
+business related scenarios where its network analysis tools can help to extract and understand the business factors. Hence, it is more business oriented software so that companies can use this software to testify their commercial dataset. Overall, the Cyram NetMiner has the following features \footnote{http://www.netminer.com/main/main-read.do}:
+\begin{itemize}
+	\item It supports large network analysis. Networks with thousands of nodes can be easily handled by the software.
+	\item The network can be explained by the embedded network metrics such as degree-related coefficients.
+	\item It can also help to make some predictions on the change of networks. Such as how the communities are changed associated with the edge dynamic changes.
+	\item It can also support exploratory network analysis, meaning to visualize the networks into 2-D plots with various of ways.
+	\item Some of the classic models and measurement metrics have been embedded in the software already.  
+	\item Robust data management
+	\item The workflow of the whole network analysis is easy to reproduce
+	\item The interface is user friendly
+	\item The analytics is Interactive, user can get the updated results immediately by changing some of the parameter settings
+	\item It also offer some built-in statistical  charts to help summarize the analysis results.
+\end{itemize}
+
+NetMiner implements five modularity and imformation propagation algorithms for discovering community structure such as Edge betweenness, Blondel, Eigen vector, Label propagation and Modularity. All of these methods are introduced in the previous section. A brief screenshot to illustrate the software can be found at Figure \ref{fig:netminer}.
+
+\textbf{CFinder}
+
+CFinder is a graphic tool for network cluster (community) detection based on Clique Percolation Method (CPM) \cite{kumpula2008sequential}. It is a tool particularly good for detecting overlapping and Top-K communities. CFinder \footnote{http://www.cfinder.org/} uses the Clique Percolation Method for detecting k-clique communities \cite{palla2005uncovering}. Hence, it focuses on a particular sub-domain of the whole community detection algorithms. K-clique partition is also a key topic in the community detection domain. And a k-clique community is a combination of all k-cliques that can be reached from each other via a series of adjacent k-cliques \cite{adamcsek2006cfinder}. In k-clique algorithms,  whole network can be disjoint and separated into several blocks. And CFinder detects the same communities of a subgraph that whether the subgraph is linked to a large network or not. For heterogeneous network, it divides it into homogeneous subnetworks and applies the method to them separately \cite{bartaonline}.  For visualizing graphs, CFinder uses Spring layouts. By adjusting the visualization settings in the Tools menu, the visualization interface provides different views of the network such as the  cliques, basic statistics of the graph and the community detection  results of  the graph. In a word, the software is also good at its interactive functions with users, which makes it widely used by researchers and have a good reputation. A broad view of the software interface can be found here in Figure \ref{fig:cfinder}.
+
+\textbf{UCINet}
+
+UCINET \footnote{https://sites.google.com/site/ucinetsoftware/home} for Windows \cite{borgatti2014ucinet} is a software package for the analysis of social network data, which was developed by Lin Freeman, Martin Everett and Steve Borgatti. It comes with the NetDraw network visualization tool. It only has a Windows version of the software, but it still keeps updating now. Users can download either the 32-bit or 64-bit version of UCINET. The 32-bit version is the standard version and runs on both 32-bit and 64-bit Windows. The 64-bit version is limited in that it does not have all of the functions of the 32-bit version. From its official website, it is said the 64-bit version often crashes. Therefore, it is suggested to use the 32-bit version. It is not a free software so that users need to purchase it if they are willing to use. UCINET is a comprehensive package for the analysis of social network data. It can generate many statistics of the graphs such as the mean and variance on node degrees.  It can handle various kind of data format as the input such as Excel files. From its official announcement, it claims that it is able to handle a maximum of 32,767 nodes (with some exceptions) although practically speaking many procedures get too slow around 5,000 - 10,000 nodes. Social network analysis methods embedded in the software include centrality measures, subgroup identification, role analysis, elementary graph theory, and permutation-based statistical analysis. In addition, the package has strong matrix analysis routines, such as matrix algebra and multivariate statistics.
+Moreover, it is able to draw graphs into 2-D plots as well. But based on the free trials on the software, it does not perform well and is not easy to handle as other  software such Pajek. The Figure \ref{fig:ucinet} shows the interface of this software.
+
+\textbf{GUESS}
+
+GUESS \cite{adar2007softguess}, as mentioned in its official website\footnote{http://graphexploration.cond.org/},  is an exploratory data analysis and visualization tool for graphs and networks. The software also contains a  script language called Gython to  handle large graph data. Gython, or named as Jpython, is a connector between Java and Python, which allows to use both Java and Python to run the data analysis functions and visualize the graph result in Java Applet. An interactive interface is also offered to generate community detection results.  The interface of GUESS visualization a window can be zoomed in and out to adapt graph size for a better visualization experience. The visualization part is based on Piccolo \footnote{http://www.cs.umd.edu/hcil/piccolo/}, a visualization tool designed by University of Maryland.
+
+GUESS also supports dynamic and time sensitive graphs to check the dynamic changes of graphs. The input format of the software can be various, such standard graph formats (Pajek, GML). It can also export the results to various of formats  as images (GIF, PNG, EPS, PDF, JPG, SVG...)
+
+By taking the advantage of JUNG, as well as other software (HSQLDB, RServe , etc), GUESS support various layout algorithms and graph analysis functions run in terminal. Hence, it has various kinds of scripting language versions. The original version of the software is written in Java and the lasted version is in 2007. An overview and brief tutorial of the software can be found on YouTube \footnote{https://www.youtube.com/watch?time\_continue=227\&v\=TWMW8CZqAX8}. However, the software is no longer update, which causes fewer people to use it anymore. But it still offer some good insights of community detection visualization and analysis, and is particularly friendly to users with few technical background. People need to type related commands to the terminals, and the graph interface will be automatically popped out. Figure \ref{fig:guess} shows the layouts of the GUI.
+
+\textbf{ORA-LITE}
+
+ORA-LITE \cite{carley2014ora} is a graph evaluation tookit good use for dynamic graphs as well as a network analysis package developed by CASOS at Carnegie Mellon University \footnote{http://www.casos.cs.cmu.edu/projects/ora/}. It is a software or a tool mainly used for dynamic networks, which means the networks they analyze changes over time or other attributes. As it claims in the official webpage, ORA-LITE can handle multi-mode, multi-plex, multi-level networks.It can not only find out the community structure of those dynamic networks but also other basic patterns of the networks. Although  the calculation time complexity is usually high in dynamic networks, this software is able to handle super large scale networks. Based on the announcement from the official website, the ORA-LITE is itself limited to a maximum of 2,000 nodes per entity class. But the total number of nodes can be up to a million, which is pretty large compared with other software. One good part of this software is that it offers multi-language introduction tutorial page and even have  google groups in which users can ask questions and exchange ideas. Another advantage of this software is that the version of it keeps updating. The latest version is in 2019. But it only has Windows version of the software. A screen shot of a demo graph generated via the software can be seen here in Figure \ref{fig:ora}. 
+
+\textbf{Cytoscape}
+
+Cytoscape \cite{smoot2010cytoscape} is an open source software platform for visualizing molecular interaction networks. It is a very famous network analysis tools for healthcare data with really powerful functions \footnote{http://www.cytoscape.org/}.  Although Cytoscape was originally designed for biological research, now it is a general platform for complex network analysis and visualization. Inside its software, there are a basic set of features for data analysis and visualization. Moreover, it offers many plugins added to the basic version software.  It is originally written in Java and JS, which allows to add extra plugins to make better visualization with various types of layouts for graph analysis. It offers very complex data flow analysis on graphs and detect node pattern and relationships with embedded functions such as link prediction and node community detection .It can also connected with databases remotely and visualized in html via their designed Cytoscape.js. Cytoscape even has an App Store where you can download those plugins. It has Mac version and is developed based on Java. This software is pretty active now and keeps updating all the time. Based on its official website recorded statistics, Cytoscape downloads in 2017 is average 15,600 per month (512 per day) and in 2018 is average 17,600 per month (586 per day). A screenshot of the software is shown in Figure \ref{fig:cytoscape}. 
+
+\textbf{muxViz}
+
+MuxViz \cite{de2015muxviz}  is a framework for the multilayer analysis and visualization of networks \footnote{http://muxviz.net/gallery.php}. It allows an interactive visualization and exploration of multilayer networks, i.e., graphs where nodes connecetd with multi-type relationships or with multi-type attributes simultaneously. Hence, the most outstanding feature of this software is that it can handle multiple relationship at the same time while most of the other softwares are only capable to analyze homogeneous networks. It is suitable for the analysis of social networks exhibiting relationships of different type (e.g., social relationship and professional relationships), interactions on different platforms (Twitter, Facebook, etc), or biological networks characterized by different type of interactions (e.g., electric, chemical, etc.  Another advantage of this software is that MuxViz is based on R and GNU Octave, running on Windows, Linux and Mac OS X. It is open-source and free. A demo of this software is in Figure \ref{fig:muxViz}.
+
+
+\textbf{Gephi}
+
+Gephi \footnote{https://gephi.org/} is a leading visualization and exploration tool for social networks. The goal of Gephi is to make better analysis to find patterns, separate structure to uncover graph structures and visualize the result in an intuitive way to make it easier for users to understand. In its GUI, it has a visualization window along with a bunch of functional buttons. By clicking on the buttons or change the values inside the related boxes, it can directly change the visualization layout appeared in the canvas window. Actually it also has a Python library associated with it. However, empirically using the software directly is more convenient and a better choice for users. Moreover, one advantage of the software is that dynamic networks can be also conveniently explored in Gephi. In Gephi, the default mode for network layout is 2-D, even though it uses 3-D rendering engine \cite{bastian2009gephi}.  
+
+In Gephi, communities can be detected by Louvain method. i.e., modularity method. There are also a bunch of other algorithms embedded in this software. Users can even have a choice to try different rendering ways and choose one of them as the ideal one. In addition to supporting various graph layouts, it has Antialiasing, which is a visualization choice which models the edges looks smoother. The software is pretty new and until now, it is still updated frequently, which makes it the most popular visualization and analysis tools for graph mining and community detection. The following Figure \ref{fig:gephi} shows the interface of the Gephi software in a vivid way.
+
+
+\textbf{Visone}
+
+Visone \cite{baur2001visone} is a tool for analyzing and visualizing social networks \footnote{https://visone.info/}. It is software for the visual creation, analysis, transformation, exploration, and representation of network data \cite{brandes2004analysis}. It is written in Java and can be run from terminal.  Visone implements many algorithms as well, such as Louvain clustering for discovering communities.The visualization layouts supported by Visone are Spring, Circular, Random and Spectral. It defines that the features inside Visone:
+
+\begin{itemize}
+	\item It is an interactive graphical user interface, which particularly designed for social network analysis.
+	\item It has many version written in Java for Windows, Linux, and MacOS.
+	\item The input  format of graph data is in standard format including Pajek, GraphML or Excel.
+	\item The generated imges can be saved in various fomats including JPEG, PDF, SVG, Metafile, and others.
+\end{itemize}
+
+The visualized output and analysis result of the software can be directly used for academic paper writing, which is pretty convenient for researchers with limited programming background. From its official website, the latest version of this software is in 2016. So although it has some comprehensive functions, the algorithms embedded are a little bit out of date. However, for some baseline algorithm test or some basic metrics for the network in order to retrieve some overall impressions of the graph, it is still a good tool to use. For a demo of this software, a figure is shown in Figure \ref{fig:visone}. 
+
+\subsubsection{Summary}
+In this section, we introduce almost all available GUI software for  network analysis. Some of them are free to use while the rest are paid services. We introduce eight software in total. Among all of them, we suggest to use Gephi and Pajek for use. If you are a biological domain researcher, we suggest Cytoscape instead.  These recommended ones are all free software with powerful functions. They are enough to solve community detection problems on large scale graph with thousands of nodes. Moreover, Pajek is also a well known graph format and Gephi has a Python package to use. Empirically, the network figures draw by Gephi is better than the rest GUI tools. The manual of recommended softwares are more detailed than the rest software as well. Therefore, Gephi and Pajek are the two recommended GUI to serve as network community detection tools. While for other graph related analysis, some other graph related methods such as Page Rank or graph statistic analysis metrics such as node degree distribution are also good to use.
+
+\subsubsection{Script Language Tools}
+
+Besides softwares, actually there are more packages for community detection. As compared with software, scripting languages are more flexible and able to generate better visualization results as well as to run the algorithms faster. Hence, in this section, we include and overview some of the widely used scripting languages in community detection. Most of the packages are written in R, Python, Java and C, which are most basic and hottest programming languages used in nowadays. 
+
+\textbf{R packages}
+
+R is the most popular programming language in statistics as there are many complex models are written in R language. However, one drawback of R language is that it can't handle as huge data input as Java or C. And the running speed is much slower than other programming languages mentioned above. However, if your dataset is not that large (hundreds of nodes for instance), many R packages can actually perform really well.
+
+modMax \footnote{https://cran.r-project.org/web/packages/modMax/modMax.pdf} is a good R packages that contains many algorithms related to Modularity. The algorithms implemented here are used to detect the community structure of a network. These algorithms follow different approaches, but are all based on the concept of modularity
+maximization. Algorithms inside include  genetic algorithm, fast greedy, simulated annealing,  spectral optimization and  local modularity methods.
+
+networktools \footnote{https://cran.r-project.org/web/packages/networktools/networktools.pdf} is another new R package that uses for network analysis. The functions inside include not only basic community detection algorithms but also have visualization functions within. 
+
+RANN \footnote{ https://github.com/jefferis/RANN} finds the k nearest neighbours for every point in a given dataset in $O(NlogN)$ time using Arya and Mount's ANN library (v1.1.3).  
+
+\textbf{igraph}
+
+igraph \cite{csardi2006igraph} is one of the most widely used packages for community detection\footnote{http://igraph.org/redirect.html}. Actually this package is particularly designed for solving community detection problem. Another reason why igraph is that popular is that the package have all R, Python and C version. So no matter what kind of programming language users are familiar with, there is always a version of igraph suitable for users. This package used to be frequently updated. However, in recent years, it seems quite silent. The latest version of igraph is in 2015. But there are still a bunch of widely used community detection algorithms inside the package. So far, algorithms like Optimal Modularity, Edge-Betweenness, Leading Eigenvector, Fast-Greedy, Multi-Level, Walktrap, Label Propagation, and InfoMAP are all in the packages.
+
+
+\textbf{NetworkX}
+
+NetworkX \cite{hagberg2013networkx} is a Python package for the creation, manipulation, and study of the structure, dynamics, and functions of complex networks\footnote{https://networkx.github.io/}. It is not particularly designed for community detection and actually it is a general framework for social network analysis. It is more like a foundation package of the graph mining and many other community detection packages are built based on that. However, within the package, it still has some community detection related functions. Inside the package, there are sub-components named 'centrality','clique','clustering' in which those functions all talk about community detection related algorithms or evalution metrics.
+
+
+\textbf{SNAP} 
+
+SNAP \cite{sosic2015large} is a general purpose network analysis and graph mining library\footnote{http://snap.stanford.edu/index.html}. It is written in C++ and easily scales to massive networks with hundreds of millions of nodes. So far the package has both C++ and Python version. But the Python version is just like an interface to call the C++ functions. Hence, it is so far the quickest packages for community detection in terms of running speed. Another advantage of this package is that the algorithms inside keep updating all the time. So far most of the state-of-art community detection algorithms are inside the package. Within the package, the community detection algorithms include overlapping communities, dynamic network community detection, and Modularity based community detection. There are tens of algorithms within the official website\footnote{http://snap.stanford.edu/snap/description.html}. 
+
+\subsubsection{Summary}
+In this section, we introduce some of the script langauge packages used for community detection. Actually besides these packags, some GUI softwares also offer script language packages as well such  as Gephi and Cytoscape. One strong advantage of script languages is they are more flexible to use compared to GUIs. Although GUIs do not require strong technical background and what users do with softwares is just clicking buttons. However, that pattern is standard and strictly limited by the software design itself. Therefore, it is hard to create some personalized layouts using GUIs. While script languages are more easier to combine with other programs to generate results more suitable for personal desire. Among all introduced packages, we can see they are written in three programming languages. All R based package are written in R; igraph and networkX are written in Python and SNAP is written in C++.  NetworkX is one of the fundamental packages in network analysis and we suggest it is a required package to use if your are a Python user.
+\subsection{Summary}

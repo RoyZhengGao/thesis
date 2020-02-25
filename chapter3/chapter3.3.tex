@@ -1,0 +1,59 @@
+\section{Experiments}
+
+\subsection{Datasets} 
+\subsubsection{Datasets Description} 
+
+ 
+\begin{table}[h]
+	%\scriptsize
+	\centering
+	
+	\begin{tabular}{ccccc} 
+		\toprule
+		\multirow{2}{*}{\textbf{Dataset}}  &\multicolumn{2}{c}{\textbf{Node description }} & \multicolumn{2}{c}{\textbf{Edge description}}\\ \cmidrule(lr){2-5}%\cmidrule(lr){4-5}
+		& Type & Size & Type & Size \\ \midrule 
+		Scholarly & paper & 166,170 & citation &750,181\\ \midrule 
+		Music & song & 145,203 & co-listening &1,172,525
+		\\ \bottomrule
+	\end{tabular}
+	\caption{Dataset Description}
+	\label{tab:dataset}
+\end{table} 
+
+Table \ref{tab:dataset} shows the statistics of the two datasets.  The scholarly graph is unweighted and directed, while the music graph is a weighted and undirected.
+
+\textbf{Scholarly Graph:} It contains academic publications with metadata extracted from ACM Digital Library. From the dataset, I build the experimental graph via paper citation relationship. Each vertex in the graph represents a paper, and if a paper cites another paper, there will be an edge linking the two. My model aims to detect personalized communities on the scholarly graph for authors. For each author in the dataset, I represent his/her need in two ways: their previous publications (text-based query) and cited paper history (vertex-based query).  
+
+\textbf{Music Graph:} It contains user listening histories and user-generated playlists from an online music streaming service, Xiami. I create a music graph with songs as the vertices and co-listening relationship as the edges. If two songs appear in the same user's listening history, there will be an edge linking them two. For users in the music dataset, I represent their music tastes (user need) from the songs in their listening history.  
+
+\subsubsection{Ground Truth Construction}
+
+The ground truth for the two datasets are generated based on each user's publishing/ citing/ listening history:
+
+For the scholarly dataset, the references of 112 random sampled papers are manually annotated from their literature reviews where authors summarize previous works. Different paragraphs (or sub-sections) in the literature review typically focus on separate but coherent topics while the same paragraph talks about the same topic. Based on this assumption, the papers cited in the same paragraph/sub-section naturally form a community with high resolution. To ensure each paper's cited papers form enough communities and each community contains enough papers, only papers with no fewer than three topics and all of whose communities have at least five papers are kept. After applying all these filters, 101 papers are left for evaluation.  
+
+For the music dataset, each user has several self-generated playlists. The songs in each playlist should contain a coherent theme. To avoid the playlists sharing mutually exclusive themes with other playlists, a Jaccard similarity check is applied on any pair of playlists created by the same user. If a user has at least two highly correlated playlists (Jaccard coefficient between them is above 0.5), I remove one of the playlists. Each playlist forms a separate community. Furthermore, to ensure the number of playlist and playlist size are both large enough, only users with at least three playlists and each playlist contains at least five songs are kept. In the end, there are 117 users who meet the above criteria. 
+
+In this paper, as all communities constructed in the ground truth are relevant communities with high resolution for users, my task is generating personalized communities to reconstruct the ground truth on two different datasets with vertex- and text-based user need. 
+
+\subsection{Settings}
+
+\subsubsection{Metrics \& Parameter Settings}
+
+F1-score (F1), Rand index (Rand), Jaccard index (Jaccard) and running time are reported as the evaluation metrics in this paper. Based on empirical studies, population size $P$ is 100. Crossover rate is 95\%. Mutation rate is 1\%. The maximum depth of binary community tree $d$ is 10. The number of iteration $T$ is 30. User searching preference $\lambda$ is 0.6. Community size $K$ is 50. The number of Mappers/ Reducers for parallelization $M$ is 50. The number of top vertices to construct pseudo ground truth $n$ is 10. Parameters in Infomap and Node2vec are both the default settings in their original papers. 
+
+\subsubsection{Baselines} 
+
+Considering both efficacy and efficiency, I select eight widely used user-independent community detection models. Ideally, to achieve personalized community detection, user-independent models should run on each user separately by assigning higher weights on user related edges. Thus, their time complexity should be only compared with my online step time complexity as my offline step is independent with user numbers. In this paper, to run baselines within acceptable time, I report their user-independent community results as the average performance. 
+
+\begin{itemize}
+	\item \textbf{Spinglass}: Spinglass  constructs communities by minimizing the Hamiltonian score on signed graphs.\footnote{https://github.com/antoine-lizee/SG}.
+	\item \textbf{Fast Greedy} (FG): Fast Greedy  is a greedy search method to get the maximized modularity for community detection.\footnote{https://github.com/kjahan/community}.
+	\item \textbf{Louvain}: Louvain  is an agglomerative method to construct communities in a bottom-up manner guided by modularity.\footnote{https://github.com/taynaud/python-louvain}. 
+	\item \textbf{Walktrap}: Walktrap detects communities based on the fact that a random walker tends to be trapped in dense part of a network.\footnote{https://www-complexnetworks.lip6.fr/~latapy/PP/walktrap.html}.
+	\item \textbf{Infomap}: Infomap generates communities by simulating a random walker wandering on the graph and indexing the description length of his random walk path via multilevel codebooks.\footnote{http://www.mapequation.org/code.html}.
+	\item \textbf{Bigclam}: Bigclam generates overlapping communities via a non-negative matrix factorization approach.\footnote{https://github.com/snap-stanford/snap/tree/master/examples/bigclam}.
+	\item \textbf{DeepWalk}: DeepWalk generates node embeddings via random walks and utilizes K-means on node embeddings to detect communitis.\footnote{https://github.com/phanein/deepwalk/tree/master/deepwalk}.
+	\item \textbf{Node2vec}: Node2vec is an extended version of DeepWalk with a refined random walk strategy.\footnote{https://github.com/aditya-grover/node2vec}.
+\end{itemize}
+

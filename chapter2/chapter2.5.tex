@@ -1,0 +1,284 @@
+
+\section{Evaluation}
+Once the community partition result is retrieved by taking a certain type of model, a subsequent approach is to evaluate model performance and run comparisons among different models. Therefore, how to carry out comparative analysis and what metrics should be reported as benchmarks are two imperative factors to be considered. In the following sections, I will address these two questions separately by introducing several highly cited papers about comparative analysis and a number of best known metrics widely used in industry and academia.    
+
+\subsection{Comparative Studies}
+\cite{yang2015defining} compares 13 community scoring functions and employ them on 230 graph datasets with various topics (social, collaboration, and purchasing graphs, etc.) and different sizes (from hundreds of thousand to hundreds of millions of nodes and edges in graphs) to generate communities. The 13 scoring functions lie in four categories including Internal Connectivity, External Connectivity, the combination of Internal \& External Connectivity and Network Model (Modularity). To assess these scoring functions' community adequacy, four metrics are thereafter to considered, including separability, density, cohesiveness and clustering coefficient (all these metrics will be explained in the later section). There are significant performance differences among all scoring functions  where Conductance (it measures the ratio of edges linking outside of the community) and Triad participation ratio (the ratio of nodes in the same cluster forms a triad) achieves the best performance, while Modularity score is with poor performance.
+
+\cite{orman2012comparative} argues that current community detection methods totally ignore the topological nature
+of the communities as two methods may have similar evaluation performance but totally different community distributions. It claims that adding community topological metrics such as community-wise density, average distance, internal transitivity, and hub dominance may give more supportive understandings about the community partition result. Moreover, by testing on several real-world graph datasets as well as synthetic graphs using different types of approaches (e.g., Modularity-based and diffusion-based approaches), it also empirically shows that there is no clear correlation between the method performance metrics (e.g., rand index and normalized mutual information) and community topological metrics. 
+
+\cite{hric2014community} questions the  appropriateness to simply use the node metadata information (e.g., node category or membership) as the criteria to build up the ground truth. By running 11 different community detection models on 16 different graph datasets, it claims that there is a trivial correlation between the communities constructed by graph metadata and model-detected communities. Thus, it concludes that metadata groups are not able to fully infer graph topological structure as they are separate views for the graphs. Instead, graph metadata can be taken as either auxiliary information to enhance community partition performance or another perspective to interpret graphs.  
+
+By employing 8 different models on Lancichinetti-Fortunato-Radicchi (LFR) benchmark graph, \cite{yang2016comparative} summarizes how well these models can handle graph scale, community size recovery problems. All model performance and computing time are also assessed and compared with each other. In the end, the paper offers some insights about how to choose the proper model given graph descriptive parameters like LFR mixing parameter.
+
+\cite{abrahao2012separability} analyzes communities by taking account of a broadspectrum of structural properties. The analysis reveals nu-ances of the structure of real and extracted communities
+
+We extract diﬀerent classes of communities thatcan be grouped into two categories: intrinsically-deﬁned andextrinsically-deﬁned communities.
+
+a large set of structural properties and ten diﬀerentcommunity detection procedures to produce examples of dif-ferent structural classes.
+
+
+\cite{wang2015community}
+\subsection{Metrics} 
+\cite{chakraborty2017metrics}(survey),\cite{murray2012using},\cite{chakraborty2014permanence},\cite{li2015measuring},\cite{shen2010spectral},\cite{aldecoa2013surprise},\cite{hu2010measuring},\cite{aldecoa2012closed},\cite{zhang2015evaluating},\cite{nikolaev2015efficient},
+
+
+
+In this chapter we discuss how to evaluate the generated community quality, which is also called community evaluation \cite{chakraborty2017metrics}. Typically, a network can be divided into several subgraphs with explicit or implicit relationships. Users need to decide whether the generated community is of good quality and is the most appropriate as a clustering result. Typically, there are some widely accepted metrics such as clustering accuracy are used for community evaluation. \cite{lancichinetti2008benchmark} offers a bunch of graph algorithms as well as metrics to be used ad benchmark in community detection model comparison. However, in some cases, not all widely accepted metrics are equally important to evaluate the community quality because  the research questions are different \cite{fortunato2010community}. For example, to solve the dynamic network problems, time related indicator should be more important for model assessment. And for solving large scale network community problems, the performance of an algorithm in terms of time complexity is also a crucial factor.
+
+Since a bunch of community algorithms have been proposed for both overlapping and non-overlapping networks, indicators used to solve the community detection problems on two different  types of graphs are calculated in the different ways.  In other words, we should separately discuss the metrics used in terms of different types of networks. In most of the cases, we have to know the real community structure (ground truth) for tested dataset, so that we can compare our model results with other baseline methods, which is the widely applied approach for model evaluation.  
+
+In this chapter, although there are many taxonomies for metric categorization, such as metrics for undirected or directed networks, we classify and report the evaluation metrics as overlapping metrics and non-overlapping metrics \cite{fortunato2010community,schaeffer2007graph}. While some of the metrics are common in the two scenarios such as the number of triangles in community \cite{leicht2008community,arenas2007size}, we still think it is the best way to separate metrics in those categories.
+
+In the following two sections, we discuss the metrics used to measure the similarity between the detected and the ground-truth community structures for either non-overlapping or overlapping community detection approaches.  In fact, most of existing communities focus on non-overlapping community detection, as it is a simpler scenario, some studies do point out the significance of overlapping community evaluation, mostly in a series of papers published in SNAP \footnote{http://snap.stanford.edu/index.html}. Within those papers, many overlapping metrics are introduced.
+
+
+\subsubsection{Non-overlapping Metrics}
+In this section, we discuss the metrics used to measure the similarity between the detected and the ground-truth community structures for non-overlapping community structure.
+
+We define, given a graph $G(V,E)$,  $\Omega = \{w_{1},w_{2},...w_{k}\}$ is the set of the detected communities users generated with some non-overlapping community detection models. And $C = \{c_{1},c_{2},...,c_{k}\}$ is the set of the ground truth communities given in advance. $N = |V| = \sum_{k \in K}|w_{k}|= \sum_{j \in J}|c_{j}|$  is the total number of the nodes in the original graph. $|N_{c_{j}}| = |c_{j}|$ and $|N_{w_{i},c_{j}}| = |w_{i} \cap c_{j}|$ refers to the number of nodes in each community as well as the number of common nodes detected in the two communities from both graph partition $C$ and $\Omega$.
+
+After we define some basic symbols to represent the graph community detection results, we can use the following evaluation metrics to judge whether our predicted community partition is good or bad to estimate the ground truth community results. The whole introduced evaluation metrics for non-overlapping community detection can be seen from Table \ref{tab:non-overlapping-metric}. In the following paragraphs, we start to introduce each metric one by one.
+
+\begin{table}
+	% \scriptsize
+	\centering
+	%   \vspace{-3em} 
+	% \renewcommand{\tabcolsep}{2pt}
+	\begin{tabular}{|l|l|} \hline
+		\textbf{Metric} &  \textbf{Expression}    \\ \hline
+		
+		Purity& $\frac{1}{N}$$\sum_{k} \argmax_{j} |w_{k},c_{j}|$  \\ \hline 
+		F-measure & $\frac{2*Purity(\Omega,C)*Purity(C,\Omega)}{*Purity(\Omega,C)+Purity(C,\Omega)}$ \\ \hline 
+		Rand index& $\frac{TP+TN}{TP+FP+FN+TN}$ \\ \hline 
+		$F_{\beta}$, precision P, recall R& $\frac{(\beta^{2}+1)PR}{\beta^{2}(P+R)} $; $P = \frac{TP}{TP+FP}$;$R = \frac{TP}{TP+FN}$ \\ \hline  
+		Adjusted rand index & $\frac{\sum_{ij}\binom{N_{w_{i}c_{j}}}{2} -\sum_{i}\binom{N_{w_{i}}}{2} \sum_{j}\binom{N_{c_{j}}}{2}/\binom{N}{2}}{1/2*\sum_{i}\binom{N_{w_{i}}}{2}+\sum_{j}\binom{N_{c_{j}}}{2}--\sum_{i}\binom{N_{w_{i}}}{2} \sum_{j}\binom{N_{c_{j}}}{2}} $  \\ \hline 
+		Entropy& $H(\Omega) = - \sum_{k} \frac{|w_{k}|}{N}log \frac{w_{k}}{N}$ \\ \hline 
+		Normalized mutual information & $ \frac{I(\Omega,C)}{[H(\Omega)+H(C)]/2}$ ; $I(\Omega,C) = \sum_{k}\sum_{j}\frac{|w_{k}| \cap c_{j}}{N} log \frac{N|w_{k} \cap c_{j}|}{|w_{k}||c_{j}|}$ \\ \hline 
+		Variation of information& $ \sum_{i,j} r_{i,j}[log(r_{ij}/p_{i}) + log(r_{ij}/q_{j})]$= $H(\Omega) + H(C)-2I(\Omega,C)$ \\ \hline 
+		Modified purity& $\sum_{i}\sum_{u \in w_{i}} \frac{w_{u}}{w}Purity(u,\Omega,C) $\\ \hline 
+		Modified ARI& $\frac{\sum_{ij}W(w_{i} \cap W(c_{j})) - \sum_{j}W(w_{i})W(c_{j})/W(V)}{\frac{1}{2}(\sum_{i}W(w_{i}+\sum_{j}W(c_{j}))) - \sum_{i}W(w_{i})\sum_{j}W(W(c_{j}))/W(s)}$\\ \hline 
+	\end{tabular}
+	\caption{Evaluation metrics for non-overlapping community detection results}
+	\label{tab:non-overlapping-metric}
+	
+\end{table} 
+
+Separability measures the ratio between the internal and the external number of edges of  node set $S$: $g(S) = \frac{m_S}{c_S}$
+
+Density builds on intuition that good communities are well connected. One way to capture this is to characterize the fraction of the edges (out of all possible edges) that appear between the nodes in $S$, $g_S = \frac{m_S}{n_S(n_S-1)/2}$.
+
+Clustering coefficient is based on the premise that network communities are manifestations of locally inhomogeneous distributions of edges, because pairs of nodes with common neighbors are more likely to be connected with each other.
+
+Cohesiveness characterizes the internal structure of the community. Intuitively, a good community should be internally well and evenly connected, i.e., it should be relatively hard to split a community into two sub communities. We characterize this by the conductance of the internal cut. Formally,$g(S)=max_{S^{'} \in S} \phi(S)$ where $\phi(S^{'})$ is the conductance of $S^{'}$measured in the induced subgraph by S. Intuitively,conductance measures the ratio of the edges in $S^{'}$ that point outside the set and the edges inside the set $S^{'}$. A good community should have high cohesiveness (high internal conductance) as it should require deleting many edges before the community would be internally split into disconnected components 
+
+\textbf{Purity}
+
+Purity \cite{schutze2008introduction,lin2005foundations} is introduced where each detected community
+is assigned to the ground-truth label which is most frequent in the community. It is calculated by the ratio of nodes that are correctly assigned labels in the community. The formula to calculate it can be defined as:
+
+$$
+Purity(\Omega,C) = \frac{1}{N} \sum_{k} max|w_{k},c_{j}|
+$$
+The purity score is in range from 0 -1. 1 means the detected community is perfectly matched with the ground truth label. And the 0 means the opposite. From the definition, it is easy to find that the fomula is not symetric. Which means that $Purity(\Omega,C)$ and $Purity(C,\Omega)$ is different.   In practice, $Purity(\Omega,C)$ is usually used and called as the simple purity. While the $Purity(C,\Omega)$ is called the reverse purity  \cite{artiles2007semeval,danon2005comparing}. As the ground truth label is always known in advance for evaluation, hence the previous one makes more sense as we use the known labels to assign for predicted communities. However, purity is really sensitive to the number of communities for the original graph. If the number of communities increases, the purity score is more likely to be higher. The extreme case is that purity will be 1 if every node is assigned to the community itself only. While the case of inverse purity is the opposite. The most extreme case happens when all the nodes are assigned to the same community. Hence, purity iteself is not an ideal evaluation metric to judge whether the community partition is good or bad, especially when the number of clusters/ communities is unknown or undecided.
+
+\textbf{F-Measure}
+
+To solve this problem, Newman \cite{newman2004finding} introduced an additional constraint generally adopted in cluster
+analysis rather consists in processing the F-Measure, which is the harmonic mean of
+both the versions of the purity.
+
+$$
+F = \frac{2*Purity(\Omega,C)*Purity(C,\Omega)}{*Purity(\Omega,C)+Purity(C,\Omega)}
+$$
+
+This formula considers both of the purity and the inverse purity, which can balance the two metrics at one time.
+
+\textbf{Rand index}
+
+We can also regard the community detection problem as a classification problem \cite{hubert1985comparing}.
+A true positive (TP) decision assigns two same-labeled nodes to the same community;
+a true negative (TN) decision assigns two different labeled nodes to different communities. There are two types of errors we can commit. A (FP) decision assigns two different labeled nodes to the same community. A (FN) decision assigns two same labeled nodes to different communities. Hence, based on the definition of the clustering analysis, we can still use the rand index calculated for evaluating clustering result:
+
+$$
+RI = \frac{TP+TN}{TP+FP+FN+TN}
+$$
+
+\textbf{Precision, Recall, $F_{\beta}$}
+
+Derived from the methods mentioned above, we suddenly find some basic classification evaluation metrics can be natually used for evaluating community detection result. Hence, we can still use precision, recall and $F_{\beta}$. As RI gives equal wieght to FP and FN based on its definition, we can use the $F_{\beta}$ to measure the same metrics in a more flexible way by involving one more parameter $\beta$ in the formula. We can use the $F_{\beta}$  to penalize FNs more
+strongly than FPs by selecting a value $\beta >$  1. Thus, the defined precision, recall and $F_{\beta}$ can be calculated as:
+
+$$
+\begin{aligned}
+& F_{\beta} = \frac{(\beta^{2}+1)PR}{\beta^{2}(P+R)} \\
+& P = \frac{TP}{TP+FP}\\
+&R = \frac{TP}{TP+FN}
+\end{aligned}
+$$ 
+
+\textbf{Adjusted  Rand Index}
+
+Based on the previous discussion, we can see that simple rand index is not able to capture enough community detection information and get a relevant reliable feedbacks for the partition result. Hence, Adjusted Rand Index (ARI) is also raised \cite{hubert1985comparing}. It is less sensitive to the number of communities \cite{nguyen2009information}. The chance correction is based on the general formula defined for any measure M, which is a typical standardization function widely used in current days. 
+
+$$
+M_{c} = \frac{M-E(M)}{M_{max}-E(M)}
+$$
+where $M_{c}$ is the chance-corrected measure, $M_{max}$ is the maximal value that M can
+reach, and E(M) is the value expected for some null model. Under the assumption that the partitions are generated randomly given a community number, the original function of rand index can be standardized by using the function mentioned above as:
+
+$$
+\begin{aligned} 
+%&RI =  \frac{\sum_{ij}\binom{N_{w_{i}c_{j}}}{2}}{1/2*[\sum_{i}\binom{N_{w_{i}}}{2}+\sum_{j}\binom{N_{c_{j}}}{2}]}  \\
+&ARI = \frac{\sum_{ij}\binom{N_{w_{i}c_{j}}}{2} -\sum_{i}\binom{N_{w_{i}}}{2} \sum_{j}\binom{N_{c_{j}}}{2}/\binom{N}{2}}{1/2*[\sum_{i}\binom{N_{w_{i}}}{2}+\sum_{j}\binom{N_{c_{j}}}{2}]-\sum_{i}\binom{N_{w_{i}}}{2} \sum_{j}\binom{N_{c_{j}}}{2}/\binom{N}{2}} 
+\end{aligned}
+$$
+
+This metric has an upper bound of 1. And if the value is below 0, it means that the partition result is even worse than a randomly generated community partition. 
+
+
+\textbf{Entropy}
+
+Entropy probabily is the most important metric to evaluate whether the prediction result is good or bad in machine learning tasks. Community detection also borrows idea from entropy to judge the partition. Lower entropy score refers to a more stable status. And the definition of it is shown as:
+
+$$H(\Omega) = - \sum_{k} \frac{|w_{k}|}{N}log \frac{w_{k}}{N}$$
+
+\textbf{Normalized Mutual Information and Mutual Information}
+
+NMI \cite{schutze2008introduction,strehl2002cluster,fortunato2009community} is another quite popular evaluation metric in community detection. And it is defined as 
+$$NMI =  \frac{I(\Omega,C)}{[H(\Omega)+H(C)]/2}$$
+
+While $I(\Omega,C)$ refers to the mutual information of the predicted community result with the ground truth result. It calculates how much similar the two results look like. The calculation function is the same as the normal MI function used in traditional machine learning. NMI is always a number between 0 and 1. A major problem of NMI is that it is not
+a true metric, i.e., it does not follow triangle-inequality thereon. MI function is calculated as below:
+
+$$I(\Omega,C) = \sum_{k}\sum_{j}\frac{|w_{k} \cap c_{j}}{N}| log \frac{N|w_{k} \cap c_{j}|}{|w_{k}||c_{j}|}$$
+
+
+\textbf{Variation of information}
+
+NMI has a very serious drawback called selection bias problem. The value is biased to the number of generated communities. Larger community size pretend to obtain a higher NMI score. To overcome the drawbacks of NMI, Variation of Information (VI) \cite{meilua2007comparing,kraskov2005hierarchical} is defined which is able to calculate the shared information distance obeys the triangle inequality. It is defined as:
+
+$$ VOI = \sum_{i,j} r_{i,j}[log(r_{ij}/p_{i}) + log(r_{ij}/q_{j})] $$ 
+or
+$$VOI =  H(\Omega) + H(C)-2I(\Omega,C)$$
+where $p_{i} = \frac{w_{i}}{N}$, $q_{j} = \frac{c_{i}}{N}$ and $r_{ij} = \frac{w_{i} \cap c_{j}}{N}$. 
+
+
+\textbf{Modified purity}
+
+\cite{orman2012comparative,labatut2015generalised} argue that the traditional metrics consider a community structure and ignore the network topology. They add the weights information of a node to calculate purity score. First, as the same Purity function mentioned above, they represent the function use another term:
+
+$$
+Purity(u,\Omega,C) = \delta(C_{j}|s.t. N_{w_{i}c_{j}} \text{ is maximum})
+$$
+
+After they add link weights to the original purity function, it terms to be:
+$$
+MP = \sum_{i}\sum_{u \in w_{i}} \frac{w_{u}}{w}Purity(u,\Omega,C) 
+$$
+
+where $W=\sum_{v}w_{v}$ is the sum of all the weights of the nodes in a community or in the whole graph. This function can keep the modified purity result in a range of 0 to 1.
+
+\textbf{Modified ARI}
+
+Taking the similar idea from modified purity function, since Rand Index is based on pairwise comparisons, it is not possible to
+isolate the individual effect of each node, previous studies propose to use the product of the two
+corresponding nodal weights: $w_{u}w_{v}$. Then for any subset of nodes S, it can be translated
+as: $W(S) = \sum_{u,v \in S} w_{v}w_{u}$. And the modified ARI turns into:
+
+$$ARI = \frac{\sum_{ij}W(w_{i} \cap W(c_{j})) - \sum_{j}W(w_{i})W(c_{j})/W(V)}{\frac{1}{2}(\sum_{i}W(w_{i}+\sum_{j}W(c_{j}))) - \sum_{i}W(w_{i})\sum_{j}W(W(c_{j}))/W(s)}$$
+\subsubsection{Summary}
+In this section, we introduce twelve basic evaluation metrics in non-overlapping community detection methods.  Those metrics are almost all metrics used among current researches to evaluate the non-overlapping community quality. Some of the metrics are previously raised, which were classic metrics used for years, such as Mutual information and Rand index. However, in recent years, researchers argue those metrics do not consider the normalization issue, which causes bias towards the evaluation. Therefore, many refined metrics such Adjusted rand index and Normalized mutual information start to be used more often. Based on experience, we suggest to use the normalized metrics for model evaluation, which reduces the negative effect on community numbers or biased  community size distribution. Precision, Recall and F measures are the three basic metrics for non-overlapping community detection, we suggest to at least report F measure for academic papers. As for other metrics, they can be chosen based on the evaluation task requirements.
+
+\subsubsection{Overlapping Metrics}
+In overlapping community detection evaluation, the same as the non-overlapping community detection,
+We define, given a graph $G(V,E)$,  $\Psi = \{\psi_{1},\psi_{2},...\psi_{k}\}$ is the set of the detected communities generated with some community detection models. And $C = \{c_{1},c_{2},...,c_{j}\}$ is the set of the ground truth communities given in advance. $N = |V| = \sum_{\psi \in \Psi}|\psi_{k}|= \sum_{j \in J}|c_{j}|$  is the total number of the nodes in the original graph where $|N_{c_{j}}| = |c_{j}|$ and $|N_{\psi_{i},c_{j}}| = |\psi_{i} \cap c_{j}|$. Hereby, we will introduce four kinds of basic metrics widely used in overlapping community detection. We can see that the metrics are sort of derived from non-overlapping community detection and there are only small changes on the non-overlapping community detection metrics one. The calculation function of the four metrics in shown in Table \ref{tab:overlapping-metric}.
+\begin{table}
+	% \scriptsize
+	\centering
+	%   \vspace{-3em} 
+	% \renewcommand{\tabcolsep}{2pt}
+	\begin{tabular}{|p{8cm}|p{6cm}|} \hline
+		\textbf{Metric} &  \textbf{Expression}    \\ \hline
+		
+		
+		Overlapping normalized mutual information &$ONMI(X|Y) = 1 - \frac{H(X|Y)+H(Y|X)}{2}$  \\ \hline 
+		Omega index & $\frac{Omega_{u}(\Psi,C)-Omega_{e}(\Psi,C)}{1-Omega_{e}(\Phi,C)}$ $Omega_u = \frac{1}{M}\sum_{j=1}\argmax (|\Psi|,|C|)|t_{j}(\psi_{i})\cap t_{j}(c_{j})|$ $Omega_e = \frac{1}{M^2}\sum_{j=1}\argmax (|\Psi|,|C|)|t_{j}(\psi_{i})\cdot t_{j}(c_{j})|$ \\ \hline 
+		Generalized external index& $a_{G}(i,j) =min \{\alpha_{\Psi}(i,j),\alpha_{C}(i,j)\} + min \{\beta_{\Psi}(i),\beta_{C}{i}\}+ min \{\beta_{\Psi}(j),\beta_{C}{j}\}$ $a_{G}(i,j) =abs |\alpha_{\Psi}(i,j)-\alpha_{C}(i,j)| + abs|\beta_{\Psi}(i)-\beta_{C}{i}|+ abs|\beta_{\Psi}(j)-\beta_{C}{j}|$ $GEI(\Psi,C)=\frac{a){G}}{a_{G}+d_{G}}$ \\ \hline 
+		F1-score& $\frac{1}{2} (\frac{1}{|\Psi|}\sum_{\psi_{i} \in \Psi}F1(\psi_{i},C_{g_{i}})+\frac{1}{|C|}\sum_{c_{i} \in C}F1(\psi_{g^{\prime}(i)},C_{i}))$  \\ \hline  
+	\end{tabular}
+	\caption{Evaluation metrics for overlapping community detection results}
+	\label{tab:overlapping-metric}
+	
+\end{table} 
+
+The metrics include Overlapping normalized mutual information, Omega index ,  Generalized external index and F1-score. As precision, recall and F1-score  are calculated in the same track, the difference of F1-score between overlapping and non-overlapping community detection is the same as the difference between precision and recall in the two community scenarios. Although it seems that the calculation is pretty complex, after the introductions listed in the following paragraphs, we can see that all metrics are of pretty naive and straight forward thoughts on community evaluation. In the following paragraphs, we will introduce them one by one.
+
+\textbf{Overlapping normalized   mutual information}
+
+The conditional entropy of a cluster $\psi_{k}$ given $C_{l}$ is
+defined as $H(\psi_{k}|C_{l}) = H(\psi_{k},C_{l}) - H(C_{l})$. The entropy of $\psi_{k}$ with respect to the entire vector $C$ is based on the best matching between $\psi_{k}$ and any component of $C$ given by
+vector $C$ is based on the best matching between $\psi_{k}$ and any component of $C$ given by:
+
+$$
+H(\psi_{k}|C) = min_l (\psi_{k}|C_{l})
+$$
+
+And the normalized conditional entropy of$\Psi$ to $C$ is naturally calculated as:
+$$
+H(\Psi|C) = \frac{1}{|C|}\sum_{k} \frac{H(\psi_{k}|C)}{H(\Psi_{k}) }
+$$
+Similarly, we can define $H(C|\Psi)$. And the overlapping normalized mutual information (ONMI) \cite{mcdaid2011normalized} is defined as: 
+$$ONMI(\Psi|C) = 1 - \frac{H(\Psi|C)+H(C|\Psi)}{2}$$
+
+If the overlapping part is 0, this function is also able to represent non-overlapping NMI score. In ONMI, it calculated the conditional entropy from both sides ($\Psi \rightarrow	 C$ and $C \rightarrow	\Psi$). Higher ONMI score refers to the higher correlation between ground truth communities and generated communities.
+
+\textbf{Omega index}
+
+Omega index \cite{murray2012using} can be regarded as the overlapping version of the Adjusted Rand Index \cite{collins1988omega,murray2012using}, which is another critical indicator to measure the overlapping community detection performance. Omega index is defined in the following way \cite{gregory2011fuzzy,havemann2011identification}:
+$$\Omega = \frac{Omega_{u}(\Psi,C)-Omega_{e}(\Psi,C)}{1-Omega_{e}(\Phi,C)}$$
+
+The unadjusted Omega index $Omega_u$ is defined as:
+$$Omega_u = \frac{1}{M}\sum_{j=1}\argmax (|\Psi|,|C|)|t_{j}(\psi_{i})\cap t_{j}(c_{j})|$$
+And the expected Omega index in the null model $Omega_e$
+is given by,
+$$Omega_e = \frac{1}{M^2}\sum_{j=1}\argmax (|\Psi|,|C|)|t_{j}(\psi_{i})\cdot t_{j}(c_{j})|$$
+
+Omega index refers to how much the generated community has overlapped components with ground truth over than the null model (random overlapping communities). 
+
+\textbf{Generalized external index}
+
+\cite{campello2007fuzzy,campello2010generalized} introduce another evaluation metric called Generalized external index (GEI) for comparing the predicted community and ground truth community result. It includes the following information:
+\begin{itemize}
+	\item  $\alpha_{\Psi}(i,j)$: Number of communities shared by nodes $i$ and $j$ in partition $\Psi$	
+	\item   $\alpha_{C}(i,j)$: Number of communities shared by nodes $i$ and $j$ in partition $C$.
+	\item  $\beta_{\Psi}(i,j)$: Number of communities to which node $i$ belongs in $\Psi$ minus 1.
+	\item $\beta_{C}(i,j)$: Number of communities to which node $i$ belongs in C, minus 1.
+\end{itemize}
+
+Based on the definitions above, the agreements $a_{G}$ and disagreements $d_{G}$ associated  are defined as: 
+$$
+\begin{aligned}
+&a_{G}(i,j) =min \{\alpha_{\Psi}(i,j),\alpha_{C}(i,j)\} + min \{\beta_{\Psi}(i),\beta_{C}{i}\}+ min \{\beta_{\Psi}(j),\beta_{C}{j}\} \\
+&d_{G}(i,j) =abs |\alpha_{\Psi}(i,j)-\alpha_{C}(i,j)| + abs|\beta_{\Psi}(i)-\beta_{C}{i}|+ abs|\beta_{\Psi}(j)-\beta_{C}{j}|
+\end{aligned} 
+$$ 
+
+And the final GEI formula is:
+
+$$GEI(\Psi,C)=\frac{a_{G}}{a_{G}+d_{G}}$$
+
+Instead of calculation the community similarity on community level, GEI evaluate the performance of generated communities on pairwise node level. From the extremely complicated formulas mentioned above, we can see the fundamental idea is to check whether their relationships keep the same on each pair of nodes in the graphs. While the calculation takes much more time complexity then the rest indicators mentioned above.
+
+\textbf{F1-score}
+
+\cite{yang2013overlapping} uses average F1-score to measure the equivalence of two overlapping partitions. It is defined to be the average of the F1-score of the best matching ground-truth community to each detected community. The calculation formula is defined as:
+
+$$F1 = \frac{1}{2} (\frac{1}{|\Psi|}\sum_{\psi_{i} \in \Psi}F1(\psi_{i},C_{g_{i}})+\frac{1}{|C|}\sum_{c_{i} \in C}F1(\psi_{g^{\prime}(i)},C_{i}))$$
+
+
+\subsubsection{Summary}
+
+In this section, we introduce four different metrics for overlapping community evaluation. We can see there are some connections on those metrics with non-overlapping community detection evaluation metrics but with much more complex considerations. They either evaluate from the community level similarity or pairwise node level similarity, which offers more potential tracks for overlapping community detection. However, as overlapping community is only a part of the whole community detection family, more future works need to work on both model side and evaluation side.
+\subsection{Summary}
