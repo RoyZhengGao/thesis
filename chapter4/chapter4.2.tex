@@ -4,7 +4,7 @@
 	\centering
 	\includegraphics[width=1\columnwidth]{img/chapter4/pipeline.pdf}
 	%  \vspace{-3em}
-	\caption{The overall architecture of our proposed PCCD model. It contains three major modules mentioned in the right part of the figure. Each training instance is a mutual user triplet $\langle u_i,u_j,u_k \rangle$. Compared with the sparse graph, the main graph involves raw user community as part of model input.}
+	\caption{The overall architecture of my proposed PCCD model. It contains three major modules mentioned in the right part of the figure. Each training instance is a mutual user triplet $\langle u_i,u_j,u_k \rangle$. Compared with the sparse graph, the main graph involves raw user community as part of model input.}
 	
 	\label{fig:c4_pipeline}
 	%  \vspace{-1em} 
@@ -14,7 +14,7 @@
 
 As aforementioned, conventional methods suffer from graph sparseness problem. In this study, I propose a Pairwise Cross-graph Community Detection (PCCD) model that particularly aims at detecting user pairwise community closeness in sparse graphs by involving cross-graph techniques. 
 
-Particularly, a well connected graph is called "main graph" in this paper, corresponding to the targeted sparse graph. In general, as users may visit multiple cyber domains within a short time period, these mutual users co-occurred in both the main and sparse graph are taken as the bridge to connect the two graphs. Therefore, the relevant information from the main graph can be propagated to the sparse graph to support its user community detection. 
+Particularly, a well connected graph is called ``main graph" in this paper, corresponding to the targeted sparse graph. In general, as users may visit multiple cyber domains within a short time period, these mutual users co-occurred in both the main and sparse graph are taken as the bridge to connect the two graphs. Therefore, the relevant information from the main graph can be propagated to the sparse graph to support its user community detection. 
 
 Specifically, my proposed model (showed in Figure \ref{fig:c4_pipeline}) is trained on mutual user triplets to learn three types of pairwise community relationship including ``\textit{similar}'', ``\textit{closer}'' and ``\textit{farther}''. The goal of this study can be reformulated as the following pairwise learning task: Given a sparse graph $S$ and a main graph $M$ where $N^C$ denotes their mutual user collection, for a mutual user triplet $\langle u_i,u_j,u_k \rangle  \in N^C$ (\textbf{Model Input}),  I aim to predict the relationship of its pairwise community closeness in graph $S$ (\textbf{Model Output}). In this paper, ``\textit{similar}'' relationship means that $u_j$ and $u_k$ are either in the same community or different communities with $u_i$. ``\textit{closer}'' relationship means that $u_j$ and $u_i$ are in the same community, while $u_k$ and $u_i$ are in different communities. ``\textit{farther}'' relationship means that $u_j$ and $u_i$ are in different communities, while $u_k$ and $u_i$ are in the same community.
 
@@ -91,6 +91,16 @@ Finally, given a user $u_i$, its raw community representation, direct transforma
 \end{equation} 
 
 \subsection{Community Recurrent Unit}\label{sc:cru}
+
+After previous steps, each user of the mutual user triplet $\langle u_{i},u_{j},u_{k}\rangle$ is associated with a propagative representation. In this section, its corresponding community affiliation scores $c_{i}^{G}$ are further calculated in related graphs $G \in\{M,S\}$ through a designed Community Recurrent Unit (CRU), which is showed in Figure \ref{fig:cru}. The CRU contains an affiliation gate to calculate the user affiliation score for each community and an update gate to update community self representations. Within this unit, a community memory $D^{G} = \{d_1^G,...,d_K^G\}$ is designated to store $K$ community representations. Particularly, community representation is required to be with the same dimension as user propagative representation in both graphs.
+\textbf{Community Affiliation Gate:} The affiliation gate helps to generate the affiliation score of a user $u_i$ towards each community in both graphs, which forms a $K$-dimensional vector $c_{i}^{G} = \{c_{i,1}^{G},...,c_{i,K}^{G}\}$ where $G \in \{M, S\}$ . The user $u_i$'s affiliation score $c_{i,j}^G$ towards the $j_{th}$ community in the graph $G$ is calculated as follows:
+
+\begin{equation}\label{eq:dg}
+c_{i,j}^G = {\rm  \sigma}((u_{c}^{G})^{\intercal}({\rm  tanh}(v_{i}^{G})*d_j^G))
+\end{equation}
+
+The dot product between transformed user propagative representation ${\rm  tanh}(v_{i}^{G})$ and the $j_{th}$ community representation $ d_j^G$ indicates their potential correlation, which further  turns to a scalar affiliation score $c_{i,j}^G$ between 0 to 1 with the help of a projection vector $u_{c}^{G}$ and normalization function $\sigma(\cdot)$.
+
 \begin{figure}  
 	% 	\advance\leftskip-2cm 
 	\centering
@@ -100,16 +110,6 @@ Finally, given a user $u_i$, its raw community representation, direct transforma
 	\label{fig:cru}
 	% 	\vspace{-1.5em} 
 \end{figure}
-After previous steps, each user of the mutual user triplet $\langle u_{i},u_{j},u_{k}\rangle$ is associated with a propagative representation. In this section, its corresponding community affiliation scores $c_{i}^{G}$ are further calculated in related graphs $G \in\{M,S\}$ through a designed Community Recurrent Unit (CRU), which is showed in Figure \ref{fig:cru}. The CRU contains an affiliation gate to calculate the user affiliation score for each community and an update gate to update community self representations. Within this unit, a community memory $D^{G} = \{d_1^G,...,d_K^G\}$ is designated to store $K$ community representations. Particularly, community representation is required to be with the same dimension as user propagative representation in both graphs.
-
-
-\textbf{Community Affiliation Gate:} The affiliation gate helps to generate the affiliation score of a user $u_i$ towards each community in both graphs, which forms a $K$-dimensional vector $c_{i}^{G} = \{c_{i,1}^{G},...,c_{i,K}^{G}\}$ where $G \in \{M, S\}$ . The user $u_i$'s affiliation score $c_{i,j}^G$ towards the $j_{th}$ community in the graph $G$ is calculated as follows:
-
-\begin{equation}\label{eq:dg}
-c_{i,j}^G = {\rm  \sigma}((u_{c}^{G})^{\intercal}({\rm  tanh}(v_{i}^{G})*d_j^G))
-\end{equation}
-
-The dot product between transformed user propagative representation ${\rm  tanh}(v_{i}^{G})$ and the $j_{th}$ community representation $ d_j^G$ indicates their potential correlation, which further  turns to a scalar affiliation score $c_{i,j}^G$ between 0 to 1 with the help of a projection vector $u_{c}^{G}$ and normalization function $\sigma(\cdot)$.
 
 \textbf{Community Update Gate: } \label{sc:cug} When calculating $u_i$'s community affiliation, its information can help to update community representations in return. The updated representation is relied on both previous step community representation and current user propagative representation. Therefore, to better embrace the two representations, I use a delicate RNN variant, where the update process is calculated as follows:
 
@@ -165,7 +165,7 @@ where $W_{o}$ and $b_{o}$ are the related weight and bias. $\sigma(\cdot)$ denot
 
 \subsection{Training Strategy}\label{sc:mt}
 
-Although my model is trained solely on mutual user triplets, it is also able to detect pairwise community closeness among users only appeared in either sparse graph or main graph. Two training tricks are particularly employed in our model to improve model robustness, including shared weights and masked training. 
+Although my model is trained solely on mutual user triplets, it is also able to detect pairwise community closeness among users only appeared in either sparse graph or main graph. Two training tricks are particularly employed in my model to improve model robustness, including shared weights and masked training. 
 
 First, as my model should be insensitive to the sequence of input user triplet, the weight matrices, biases and project vectors in both Section \ref{sc:upr} and Section \ref{sc:cru} should be shared among the three users. Moreover, in  Section \ref{sc:cru}, the community memory $D^G$ where $G \in \{M,S\}$ is updated by taking the average of the three updated community representations (calculated in Eq. \ref{eq:up}) from input triplets.
 

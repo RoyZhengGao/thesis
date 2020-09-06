@@ -1,34 +1,356 @@
 \section{Main Track Methods}
-spectral clustering and stochastic block model relationship. some other tracks such as multi-objective, multi-scale community detection, joint training methods. 
-\subsection{Modularity}
-\cite{newman2004fast},\cite{newman2006modularity},\cite{nicosia2009extending},\cite{yang2016modularity},\cite{newman2016equivalence},\cite{sun2013maximizing},\cite{cafieri2011locally},\cite{jiang2012modularity},\cite{xiang2016local},\cite{zhang2013normalized},\cite{bagrow2012communities},\cite{bu2013fast},\cite{chen2014anti},\cite{chen2014community},
 
+The main track of methods in community detection is quite clear according the published years of milestone papers. Modularity based papers are in dominant position in early 2000s after the concept of modularity is defined by \cite{newman2004fast} and \cite{newman2006modularity}. Spectral clustering methods start to raise in early 2010s, which aims to calculate eigenvectors from graph Laplacian matrix. \cite{nascimento2011spectral} is a representative survey paper summarizes a series of relevant researches. Matrix factorization based approaches are also very popular in the similar time period to spectral clustering, as both types of approaches utilize matrix decomposition techniques. Stochastic block model is a type of statistical inference model which has a lot of variants in the recent decade. Recently with the rapid increasing in deep learning, more models tend to detect communities in either an end-to-end fashion or by formulating conventional models under deep learning frameworks. In this section, the six discussed tracks are the most popular ones and related studies are summarized in following paragraphs.
+
+\subsection{Modularity}
+
+As the most important metric to measure the fitness of a community partition, modularity reflects the superiority of how much the communities preserves in-community edges better than a random partition model. Mark Newman published a series of papers regarding to explain the modularity from various perspectives, such as edge connections and adjacency matrix transformation. Among these papers, \cite{blondel2008fast} and \cite{newman2006modularity} are two representative works to explain what is modularity and how to find out a proper community partition which maximizes the graph modularity efficiently. 
+
+Louvain method \cite{blondel2008fast} so far is the most efficient method to find the optimal partition with largest modularity. Within the paper, modularity is interpreted as the measurement to compare the density of within-community edges with that of between-community edges. It is calculated as:
+
+\begin{equation}
+	Q = \frac{1}{2|E|}\sum_{ij}(A_{ij} - \frac{k_ik_j}{2|E|})\delta(c_i,c_j)
+\end{equation}
+
+where   $k_i$ is the degree of node $i$.  $\delta(c_i,c_j) = 1$ if node $i$ and $j$ are in the same community, it equals to 0 otherwise.
+
+The efficient Louvain method contains two phases and optimizes the modularity through an iterative approach. In the initialization step, all nodes are assigned to a single-node community. Then, for each node $i$, the paper considers to remove $i$ from its current community and plug into one of the communities which its neighbor nodes belong to. It will be re-assigned to a community which has the largest modularity gain. The second phase will run iteratively until no further modularity gain achieved. \cite{traag2019louvain} is a follow-up work of Louvain method to guarantee the generated communities are well-connected.
+
+FPMQA model \cite{bu2013fast} is a parallel model to detect modularity based communities efficiently. The steps are similar as Louvain method. It also initializes a set of single-node communities, and merges communities which leads to the largest modularity gain in each step. The FPMQA model takes use of a mark array to store community states (busy or free) and merges communities based on their states in a parallel fashion.
+
+In  \cite{newman2006modularity}, it theoretically proves that the original modularity optimization problem can be rewritten as the eigenvalue and eigenvector calculation on a defined modularity matrix. In a two-community detection scenario,  the modularity matrix can be written as:
+
+\begin{equation}
+Q = \frac{1}{4|E|}s^TBs
+\end{equation}
+where $s$ is a column vector in which $s_i = 1$ if node $i$ is in community 1 or $s_i = -1$ if node $i$ is in community 2. $B$ is a symmetric matrix in which $B_{ij} = A_{ij} - \frac{k_ik_j}{2|E|}$. In the end, after matrix transformations, The final goal is to find a proper community assignment $s$ to concentrate as much as positive eigenvectors of the matrix $B$.
+
+A further approach, \cite{jiang2012modularity}, solves modularity maximization from the nonnegative matrix factorization (NMF) perspective. It runs on modularity Laplacian matrix instead of the modularity matrix.  
+
+\cite{nicosia2009extending} extends the modularity to directed graphs for overlapping community detection. The modified modularity is calculated as:
+\begin{equation}
+	Q= \frac{1}{|E|}\sum_{c \in C}\sum_{i,j \in V}[r_{ijc}A_{ij}- s_{ijc}\frac{k_{in}k_{out}}{|E|}]
+\end{equation}
+where $r_{ijc}$ is the weight of contribution of edge between node $i$ and $j$ to the modularity of community $c$. And $s_{ijc}$ is the weight of contribution in the null model where communities are randomly assigned. The whole approach is optimized through a genetic process.
+
+\cite{cafieri2011locally} introduces a local divisive heuristic to maximize graph modularity in undirected and unweighted graphs. It hierarchically divides the graph by using Kernighan-Lin heuristic, which proceeds a bipartition to reassign nodes from a community to the other. In each step, the bipartition reassignment which gains the largest modularity improvement will be selected. \cite{xiang2016local} also considers local graph connectivity and proposes a local modularity optimization to detect node communities.
+
+ \cite{yang2016modularity} applies stacked auto-encode, a type of deep learning technique, to reconstruct the modularity matrix. Besides that, \cite{chen2014community} introduces several other variants of modularity, including modularity density,  fine-tuned modularity and fine-tuned modularity density.  Modularity density avoids the resolution limitation problem of original modularity. And the two fine-tuned variants improves the measurement by splitting and merging the graph structures. Derived from modularity density, \cite{sun2013maximizing} proposes a new measurement named modularity intensity to indicate the cohesiveness of community partition, which is defined as:
+\begin{equation}
+	M = \sum_{i=1}^{C}\frac{\alpha F(C_i,C_i) - \beta F(C_i,\bar{C_i})}{|C_i|}
+\end{equation}
+where $|C_{i}|$ refers to the number of nodes in community $C_i$. $F(C_s,C_t) = \sum_{\forall i\in C_s, \forall j\in C_t} A_{ij}\cdot B_{ij}$. And $\bar{C_i} = C - C_i$. $A$ is the adjacency matrix and $B$ is the edge weight matrix, which is calculated as:
+
+\begin{equation}
+	B_{ij} = \frac{\sum_{t=1}^{|V|}A_{it}\cdot A_{tj} + A_{ij}}{\sqrt{\sum_{t=1}^{|V|}A_{it} \cdot \sum_{t=1}^{|V|}A_{tj}}}
+\end{equation}
+ where $i,j \in V$ and $i \neq j$.
+ 
+
+  
+\cite{bagrow2012communities} shows a series of different tree and tree-like graphs, such as caley tree graph, z-ary graph and other clique or tree graphs. It theoretically proves that these types of graphs  always obtain communities which have high modularity scores. And adding nontree-like components in graph will destroy this phenomenon. 
+
+To solve the resolution limit of modularity, \cite{zhang2013normalized} proposed a refined modularity metric by involving community degree factor, which compares the sum of average degree difference between the detected communities and randomly generated communities. The calculating formula is defined as:
+
+\begin{equation}
+Q = \sum_{k=1}^{K}\frac{\sum_{ij}(A_{ij} - \frac{k_ik_j}{2|E|})S_{ik}S_{jk}}{\sum_{i=1}^{|V|}S_{ik}}
+\end{equation}
+
+$S_{ik} = 1$ if node $i$ in community $k$, otherwise it equals to 0. Compared with the original modularitym the only difference is that  the normalized modularity divides the community size.
+
+\cite{newman2016equivalence} is a very classic mathematical paper which proves the equivalence between modularity method and  degree corrected stochastic block model under special parameter settings.
+
+On the contrary to modularity, \cite{chen2014anti} proposes an anti-modularity metric to detect anti-communities in graphs. Anti-community is a particular type of node partitionwhere nodes with nor or few connections within the community and densely connected with nodes from extra-communities. The anti-community is defined as:
+
+\begin{equation}
+Q = \frac{1}{|V|}\sum_{c \in C} \sum_{i,j \in c}(\sum_{k=1}^{|V|}a_{ik}a_{kj} -\frac{ k_ik_j }{|V|})
+\end{equation}
+
+where $\sum_{k=1}^{|V|}a_{ik}a_{kj}$ is the number of two-step paths between node $i$ and $j$ passing a third node $k$. The paper theoretically proves that the anti-modularity is fundamentally a principle component analysis method on the adjacent matrix. And in the end, the paper proposes a label propagation method to find a community partition with maximized anti-modularity. In detail, community labels are assigned to a set of seed nodes, which are propagated to other nodes through their connections. In the end, the nodes with same community labels are assigned to the same community.
 
 \subsection{Spectral Clustering}
-\cite{nascimento2011spectral}(survey),\cite{newman2013spectral},\cite{bruna2013spectral},\cite{saade2014spectral},\cite{krzakala2013spectral},\cite{benson2015tensor},\cite{nadakuditi2012graph},\cite{rohe2011spectral},\cite{lei2015consistency},\cite{chaudhuri2012spectral},\cite{joseph2016impact},\cite{jin2015fast},\cite{mahoney2012local},\cite{zhang2015multiway},\cite{liu2013large}
+Spectral clustering is a type of approaches which leverages  graph matrices (modularity matrix, Adjacency matrix or Laplacian matrix) to find out the top eigenvectors or other graph characteristics so as to learn low dimensional representations for nodes. By reducing the dimension of sparse graph matrices, it can preserve denser graph information and explore more cohesive node relationships. Spectral clustering has a huge relationship with stochastic block models. \cite{lei2015consistency} proves that spherical k-median spectral clustering method can be extended the degree corrected stochastic block models. \cite{nascimento2011spectral} is a survey paper which clarifies some graph terminologies and introduces several graph cut and spectral clustering methods. However, as it is published over a decade ago, the mentioned models are a bit dated and lack of detailed model explanation.
+
+\cite{newman2013spectral} is a theory paper shows that with a proper selection of parameters (i.e. how to choose the value of community membership matrix) in normalized cut via spectral method, it equals to the modularity based method and stochastic block model. \cite{bruna2013spectral} extends convolutional neural network (CNN) to general graph Laplacian matrix by adding a CNN operator on the eigenvectors of graph Laplacian. \cite{krzakala2013spectral} shows that spectral algorithms on a defined nonbacktracking matrix performs better than on adjacency matrix or other first-order approximate matrices. The nonbacktracking matrix $B$ is defined as:
+\begin{equation}
+B_{(u\rightarrow v),(w\rightarrow x)} = 
+\begin{cases}
+1,&   v = w,u \neq x\\ 
+0,  & otherwise\\  
+\end{cases}
+\end{equation}
+
+ \cite{saade2014spectral} introduces a spectral clustering method on Bethe Hessian matrix, which is also called as deformed Laplacian:
+\begin{equation}
+	H(r) :=(r^2-1)\mathbb{I}- rA + D 
+\end{equation}
+where $|r|>1$ is a regularized term. Particularly, $|r| = \sqrt{c}$ is used in this paper where $c$ is the average node degree in the graph. The eigenvectors of the matrix are calculated and those with negative eigenvalues in $H(\sqrt{c})$ or $H(-\sqrt{c})$ are selected. A standard k-means method is thereafter applied on these eigenvectors to generate node communities. Particularly, the negative eigenvalues of $H(\sqrt{c})$ shows the assortative communities, while those of $H(-\sqrt{c})$ represents the disassortative communities.
+
+\cite{liu2013large} proposes a spectral method for large-scale graphs by generating supernodes connected to the regular nodes. To reduce the graph size, it generates supernodes and connects them to regular nodes. supernodes are regarded as cluster indicators to detect regular node communities. In the end, the original graph turns to be a bipartite graph containing two types of nodes. To construct $k$ supernodes, the paper firstly selects $k$ seed nodes, and calculates all the rest nodes' shortest distance to these seed nodes in order to group them into $k$ subsets as supernodes. The original graph can be converted to a bipartite graph to record the belonging of two node types where each row refers to a supernode and each column refer to a regular node. After that, a SVD approach is applied on the bipartite graph adjacency matrix to learn low dimensional representations for all nodes. In the end, a k-means clustering methods finally helps to detect node communities. 
+
+\cite{nadakuditi2012graph} proposes a hierarchical and k-way spectral clustering method which decomposes top eigenvectors from constructed similar matrix $W$.  $W$ can be calculated as either a noisy hierarchical block matrix or a noisy k-Block Diagonal matrix. It proves the spectral clustering can tolerate the noises from similar matrix $W$ and still achieves good community partition even $W$ involves extra noise.   \cite{rohe2011spectral} summarizes the mathematical theory and proofs behind spectral clustering and stochastic block models. It also points out the the significance of spectral clustering for graph visualization. \cite{chaudhuri2012spectral} studies a spectral clustering method on graphs generated by Extended Planted Partition (EPP) model. EPP model generates graphs from a random graph with hidden community partition which affects edge generation probabilities. To facilitate the spectral clustering in such graphs, all graph nodes are randomly split into two sets $P$ and $Q$. Nodes in $Q$ are projected to the subspace generated by the bottom $k$ eigenvectors of random walk based graph Laplacian of $P$, and further community detection can group nodes in $Q$ to communities. The nodes in $P$ are partitioned in a similar way.
+
+\cite{mahoney2012local} is a locally-biased spectral clustering method which involves extra constraints for community detection. It is formulated as: 
+\begin{equation}
+\begin{split}
+&min \,\, x^T(D-A)x\\
+&s.t.\quad  \left\{\begin{array}{lc}
+x^TDx = 1\\
+(x^TD\mathbb{I})^2 = 0\\
+(x^TDs)^2 > k\\ \end{array}\right.
+\end{split}
+\end{equation}
+where $s$ is the constraint matrix, $x$ is the node low dimensional representation aims to optimize. $k$ is a threshold parameter. It offers a feasible solution which satisfies the local constraints. 
+
+\cite{zhang2015multiway} is a multiway spectral method maps modularity maximization to vector partitioning learning. Through a set of transformations, the paper finally aims to learn a representation $r_i$ for each node $i$ which maximizes the modularity score $Q$ in the graph where $Q$ is defined as:
+\begin{equation}
+	Q = \frac{1}{2|E|}\sum_{s=1}^{k}\big |\sum_{i \in s}r_i \big |^2
+\end{equation}
+ $s$ refers to each community and $i \in s$ means node $i$ in community $s$.
+
+\cite{joseph2016impact} discusses the importance to choose regularization factors for community detection. It theoretically proves that the cluster discovery result is not fully depend on the minimum node degree. And regularization can better support to group low-degree nodes to well-structured communities. In this paper, Eigengap is defined as the gap of the $k$ smallest eigenvalues to the rest of eigenvalues, which can be controlled by the regularization factors and in return will affect spectral clustering performance.
+
+SCORE model \cite{jin2015fast} uses the coordinate-wise ratios between the largest eigenvector and the rest largest eigenvectors to construct a decomposed matrix for clustering, which significantly reduces the nuisance from degree heterogeneity problem. TSC model \cite{benson2015tensor} is a spectral method on high-order graphs where graph information beyond edges implicitly connects nodes. Instead of finding out the pairwise relationship between nodes, it aims to detect node triplet relationships. Therefore, instead of constructing a 2-D matrix for matrix decomposition, it builds up a 3-D matrix to hold node transition probabilities. 
+
+SClump model \cite{li2019spectral} proposes a spectral clustering for heterogeneous graphs. It constructs a similarity matrix based on metapaths from \cite{sun2013pathselclus}. \cite{sun2013pathselclus} calculates pairwise node similarities for each metapath $P_i$, and sum them over to construct the metapath similarity matrix $\sum_{i} \lambda_i P_i$. Thereafter, it aims to learn a refined similarity matrix $S$ that exhibits a clear clustering structure, the final objective function turns to be:
+\begin{equation}
+\min ||S-\sum_{i} \lambda_i P_i||^2_F + \alpha ||S||^2_F + \beta ||\lambda|| + 2 \gamma\sum_{i}^k\sigma_i(L_S)
+\end{equation}
+which is constraint with $\sum_{j=1}^n S_{ij} = 1, S_{ij} \geq 0$ and $\sum_{i}\lambda_i = 1, \lambda_i \geq 0$. $\sigma_i(L_S)$ is the $i_{th}$ smallest eigenvalue of Laplacian graph $L_S$ for matrix $S$.
+
+\cite{mercado2019spectral} extends spectral clustering for signed graphs by constructing a family of Signed Power Mean Laplacians, which is defined by a transformation function of the normalized Laplacian graphs generated from both positive edges and negative edges. \cite{wu2018scalable} is a scalable method utilizes graph random binning features (RB) and CoreCut model \cite{zhang2018understanding} introduces the relationship between regularized spectral clustering and graph conductance minimizing. 
 
 
 \subsection{Stochastic Block Model}
-\cite{abbe2017community} (survey),\cite{karrer2011stochastic},\cite{he2015stochastic},\cite{zhang2016minimax},\cite{wang2017likelihood},\cite{lei2016goodness},\cite{gao2018community},\cite{mossel2016density},
-\cite{zhao2012consistency},\cite{celisse2012consistency},\cite{yan2014model},\cite{abbe2015community}\cite{heimlicher2012community},\cite{yun2014accurate},
-\cite{yun2016optimal},\cite{qin2013regularized},\cite{peixoto2014efficient},\cite{peixoto2017nonparametric},\cite{sarkar2015role},\cite{lyzinski2014perfect},\cite{xu2014edge},\cite{mossel2014belief},\cite{peixoto2012entropy},
+
+SBM is a major track of community detection method and there are so many papers regarding to this topic. As a type of approaches derived from statistical inference, most of papers in this track are theory papers aiming to prove their model efficiency under certain scenarios such lower \& upper bound limitation. Hereby, I will broadly introduce the general goal in each paper instead detailed theoretically proofs. \cite{karrer2011stochastic}, as one of the most classic papers which introduces the SBM concept as a generative random graph model to reconstruct the original graph from communities. It assumes there exists community partition $C$ and expected edge weight $w_{rs}$ between node $i$ in community $r$ and node $j$ in community $s$ following Possion distribution. After a set of transformation functions, the final generative probability to maximize turns to be:
+\begin{equation}
+\log P(G|w,C) = \sum_{rs} (m_{rs}\log w_{rs}-n_rn_sw_{rs})
+\end{equation}
+where $m_{rs} = \sum_{ij}A_{ij}\delta{g_i;r}\delta{g_j;s}$ refers to the total number of edges between groups $r$ and group $s$ and $n_{r}$ is the number of edges in group $r$. 
+The paper also proves the equivalence between the standard SBM and modularity for undirected graphs. It further extends to a degree-corrected SBM  to solve the limitation caused by node degree heterogeneity. 
+
+\cite{abbe2017community} is the latest survey paper published in 2017. It is a very detailed paper which introduces the general forms of stochastic block model. The main content discusses the thresholds during SBM phase transitions for exact recovery, weak recovery and partial recovery. It also extends to other related tracks of approaches such as graph-splitting, semi-definite programming and spectral clustering. In the end, it points out several open questions such as possible extensions for semi-supervised or dynamic graphs. 
+
+\cite{mossel2014belief} is a theory paper which discusses the graph reconstruction problem of sparse SBM with only two communities. The inter- and intra- edge connection probability are $a/n$ and $b/n$ where $a,b$ are parameters and $n = |V|$ is the number of nodes. The paper proposes a belief propagation model to correctly assign node community labels under a general situation where $(a-b)^2> C(a+b)$ where $C$ is a constant. \cite{mossel2016density} also discusses the same binary SBM where there are only two communities in the graph. It converts the original community recovery problem to a transformed tree reconstruction problem. Particularly, it analyzes the density evolution of belief propagation on trees with Gaussian approximations.
+
+\cite{peixoto2012entropy} is an ensemble SBM model containing several existing SBM variants. It uses an entropy based log-likelihood function to infer community structure under two different scenarios including a soft constraint and a hard constraint. For a soft constraint, each imposed node degree refers to its average value among all SBM variants. While for a hard constraint, each imposed node degree should be exactly same among all variants.
+
+\cite{latouche2011overlapping} is an overlapping SBM  which associates a latent vector for each node following multivariate Bernoulli distribution. The edge generative probability is calculated based on the latent factor of its start node and end node. \cite{abbe2015community} talks about the current limitation in partial or exact recovery of SBM and generalizes the discussion to overlapping communities.
+
+\cite{qin2013regularized} involves degree-corrected SBM to generate adjacency matrix which are used for spectral clustering. With proper adjustments in parameter selection, the regularized spectral clustering can achieve better performance for graphs where node degree significantly varies. It also points out choosing a parameter close to average degree can balance performance difference from several competing models. \cite{zhang2016minimax} is a theory paper which proposes a minimax rate to discuss the lower and upper bound for exact or partial recovery in SBM.
+
+\cite{zhao2012consistency} checks the performance consistency for degree-corrected SBM. By comparing a set of different models, it proves that degree-corrected SBM can always obtain a stable model performance. Modularity based methods need to have special parameter constraints in order to achieve a consistent result while likelihood-based methods do not. \cite{celisse2012consistency} is another paper checks the consistency of maximum-likelihood and variational estimators in SBM. It proves that in SBM variational estimators can be asymptotically equivalent to maximum-likelihood estimators to estimate the edge appearance probability between nodes. \cite{yan2014model} focuses on the model selection in SBM as there are too many parameters to tune and general model-selection criteria can't properly work. The paper discusses the influence of different log-likelihood ratio distributions in both standard SBM and degree-corrected SBM. It further extends to sparse graphs to explore more graph scenarios. Moreover, it proposes a belief propagation based linear-time approximations for log-likelihoods, which proves to have relatively satisfied agreements. 
+
+\cite{yun2016optimal} introduces a new labeled SBM task where there are labels appeared with a certain probability $p(l,i,j)$ between two nodes in community $i$ and $j$. In the end, the paper proposes a spectral partition method under SBM to reconstruct the communities from the observation of these appeared labels. 
+
+\cite{peixoto2014efficient} utilizes an optimized Markov chain Monte Carlo (MCMC) method to efficiently infer SBM in large graphs. It heuristically defines a node moving probability for community $r$ to $s$ as:
+\begin{equation}
+p(r \rightarrow s| t) = \frac{e_{ts}+ \epsilon}{e_{t} + \epsilon B}
+\end{equation}
+
+where $t$ is the community label of a random node, $e_{t}$ is its degree. $\epsilon$ is a tuning parameter and $B$ is a relatively large constant. 
+
+Given a random labeled graph generated by standard SBM, \cite{xu2014edge} aims to infer its edge community distributions from node latent attributes. specifically, it proves that no model works well without observation if average node degree is below a certain threshold.  
+
+\cite{he2015stochastic} proposes a SBM based edge community detection task and addresses the community size heterogeneity problem which is often ignored by previous works. In its definition,  an edge $<i,j>$ is generated by two nodes  $i,j$ selected from community $z$. The node selection probabilities are $\theta_{iz}$ and $\theta_{jz}$ and  community size is $w_z$. In its generative model, a community $z$ is firstly chosen with $w_z$ nodes. And node $i$ and $j$ are selected in this community with the aforementioned probability to form an edge. The final expected number of edges between the two nodes in community $z$ are calculated as:
+\begin{equation}
+\hat{A}^z_{ij} = w_z\theta_{iz}\theta_{jz}
+\end{equation}
+And the final expectation of edge number between node $i$ and $j$ is the sum over all possible communities as $\hat{A}_{ij} = \sum_{z}\hat{A}^z_{ij}$.
+
+
+\cite{wang2017likelihood} is a likelihood based SBM  which can be extended to degree-corrected SBM with proper parameters. It calculates the asymptotic distribution under overfitting and uderfitting situation and proves its result performs stable when average node degree grows  at a polylog rate.  \cite{lei2016goodness} is a goodness-of-fit test on SBM to offer a baseline result for comparisons with other competing models. \cite{gao2018community} is an in-depth exploration particularly for degree-corrected SBM and proposes a polynomial time algorithm for asymptotic optimization in  the degree-corrected SBM. 
+
+
+%,\cite{heimlicher2012community},\cite{yun2014accurate},
+%
+%\cite{peixoto2017nonparametric},\cite{sarkar2015role},\cite{lyzinski2014perfect}
 
 
 \subsection{Deep Learning}
-\cite{chiang2019cluster},\cite{wang2017mgae},\cite{tian2014learning},\cite{bruna2017community},\cite{wang2017community},\cite{cavallari2017learning},\cite{shao2015deep},\cite{zheng2016node},\cite{rozemberczki2019gemsec},\cite{sun2017non},\cite{bhatia2018dfuzzy},\cite{yang2016modularity},\cite{huang2014deep},\cite{jin2019graph}(also for attribute graph),\cite{zhang2019attributed},(also for attribute graph)
+
+In recent years, deep learning techniques are more and more involved in community detection tasks. Related approaches either leverage graph neural networks (GNN), graph convolutional networks (GCN) or other standard deep frameworks (i.e. autoencoder) to learn community embeddings or direct node-community distributions. 
+
+Autoencoder is a very intuitive approach to compress node original one-hot encoding to a latent low-dimensional space. By natural, the node latent vector can be regarded as its community distribution or be further clustered by other community detection models. \cite{huang2014deep} is the first work which uses autoencoder technique to learn node embeddings. It uses a four fully connected layers as the encoder to project original input to a latent space. Then a symmetric decoder is processed on the latent vector to reconstruct the original input. A locality-preserving constraint (from k-nearest neighbor nodes) and a group sparsity constraint (from same-community nodes generated from group lasso) are combined with the reconstruction error as the final objective to minimize. In the end, k-means clustering method is applied to the latent node representation for community detection. Similarly \cite{tian2014learning} is a very classic method to learn node non-linear embedding via stacked autoencoder, and applies k-means to obtain node communities afterwards. \cite{sun2017non} is another similar approach but with a shared weight in both encoder and decoder. And the final optimized weight is regarded as the node-community matrix. MGAE model \cite{wang2017mgae} is a marginalized autoencoder which leverages both graph structure and content information into a unified GCN framework. The model considers both graph adjacency matrix and node content to learn latent node representations. And a spectral clustering is taken on top of the representations to detect the final node communities.
+
+\cite{cavallari2017learning} jointly models three tasks to learn node embeddings, community embeddings and detect communities. The community embedding are generated from multivariate Gaussian distribution. And a Gaussian Mixture Model (GMM) helps to learn the generative probability of a node from a community. Meanwhile, the node embedding is optimized from a skip-gram model with negative sampling with the goal to generate nodes from its neighbor nodes.  Similarly, \cite{sun2019vgraph} is also a multi-task generative model to jointly learn node embedding and detect communities. In its assumption, a node is represented as a mixture of communities, and a community is a multinomial distribution over all nodes.  The generative probability of a neighbor node $u$ of node $v$ is calculated as:
+\begin{equation}
+p(u|v) = \sum_{c}p(u|c)p(c|v)
+\end{equation}
+The probability is the sum over all conditions that node $v$ generates a community $c$ first, and community $c$ thereafter generates node $u$. The whole generative process can be optimized under a deep framework using stochastic gradient decent optimization.
+
+DLC model \cite{shao2015deep} proposes a single layer transformation as:
+\begin{equation}
+\min_{W,C} ||A-WDC||^2_F + \lambda||C||^2_F
+\end{equation}
+where $W$ is the linear transformation function, $D$ is the dictionary in the linear coding, $C$ is the code of the graph nodes. This linear transformation can be stacked into multi-layers to achieve a deep linear coding schema. The paper also theoretically proves its equivalence to the marginalized denoising autoencoding with spectral clustering.  
+
+ComE model \cite{zheng2016node} proposes an interesting task to learn community embeddings instead of node embeddings. Instead of representing communities as a vector and inspired by the Gaussian mixture model, ComE formulates that community embeddings follows multivariate Gaussian distribution with a tuple of a mean vector and covariance matrix. Therefore, the main output of this model is a set of community embedding $(\psi_k,\Sigma_k)$ for each community $k \in \{1,..,K\}$. Node embeddings $\phi$ are learned as a prior knowledge via LINE method \cite{tang2015line} to support community embedding. The whole process is optimized as a generative model which uses community embedding to generate node embeddings $p(v_i|c_i=k,\phi_i,\psi_k,\Sigma_k)$.
+
+GEMSEC model \cite{rozemberczki2019gemsec} jointly learns node embeddings and clusters nodes into communities. It uses a negative sampling to maximize the generative probability of neighbor nodes given the current node. Meanwhile, it adds a community cost to the node embedding objective to learn community centers:
+\begin{equation}
+\argmin \sum_{v\in V}\big[ ln \Big(\sum_{u\in V}exp(f(v)\cdot f(u)) \Big) \big] + \gamma \sum_{v \in V}\min_{c\in C}||f(v)-u_c||_2
+\end{equation}
+where $f(v)$ is the embedding of node $v$. $N_S(v)$ is a collection of nodes within a window size towards node $v$ through random walks. The first term is the node embedding learning cost, and the second term is the community center distance cost. 
+
+DFuzzy model \cite{bhatia2018dfuzzy} is a three-step approach to learn fuzzy clusters. In the beginning, a pre-training step learns the initialized community centers through a personalized PageRank. And an autoencoder approach is taken with the PageRank result to learn the initialized node communities regarding as the center nodes. Second, modularity is used to redefine the partition result of initialized communities. Third, the community centers are updated based on the distance of the rest nodes in the community, which are calculated from the last layer of the model. The whole process will iteratively updated until convergence.
+
+\cite{yang2016modularity} learns node embedding from deep neural network, and extends its model to a semi-supervised community detection task by involving pairwise node contraints. The node embedding learning process is a standard stacked autoencoder approach to firstly project each node to a latent space and reconstruct it after that. To involve the pairwise node contraints, the objective function adds $\lambda Tr(H^TLH)$ to the reconstruction error in the stacked autoencoder. $H$ is the learned node low dimensional vector, which is also regarded as node-community distribution. $L$ is the Laplacian matrix of the node constraint matrix. 
+
+\cite{bruna2017community} is a very first work to really apply graph neural network (GNN) techniques in community detection tasks. It is a stacked model which contains multiple stacked components. In each layer of the component, it involves adjacency matrix in the non-linear transformation and the final output is node community labels. The whole approach can be optimized in an end-to-end fashion. 
+
+Cluster-GCN model \cite{chiang2019cluster} is an efficient model to leverage graph convolutional network (GCN) for community detection. It makes an innovation for the mini-batch SGD update by sample a subgraph to optimize the corresponding node embeddings. This strategy significantly reduces the computational cost in the orignal GCN framework without losing any graph information. 
+
+MRFasGCN  model \cite{jin2019graph} solves a very complex task: using both graph convolutional network (GCN) and markov random field (MRF) for semi-supervised community detection in attribute graphs with semantic information. The model input contains adjacency matrix $A$, node attribute matrix $X$ and node similarity matrix $K$ calculated from $A$ and $X$. The first two layers are GCN layers only involved with $A$ and $X$ and reLU activation function. In detail, the first layer is represented as $AXW^{(0)}$, the second layer is represented as $AX^{(0)}W^{(1)}$.  And the third layer takes $K$ into account as $KX^{(2)}W^{(2)}$. The last layer result is passed a MRF layer to learn the pairwise constraint between nodes.  
+
+For other works, \cite{zhang2019attributed} exploits the high-order graph convolutional networks and theoretically discusses the order influence to the model performance in attribute graph clustering. DMGC \cite{luo2020deep} is the latest work which detects communities in multi-graphs simultaneously via an attention module and minimum-entropy loss.  CommunityGAN \cite{jia2019communitygan} jointly learns node embeddings and detects overlapping communities through a generative Adversarial net (GAN). The generator aims to generate motifs from nodes to approximate the real graph, while the discriminator aims to detect which is the fake motif generated from the generator or the ground-truth motif.
 
 \subsection{Matrix Factorization}
-\cite{kuang2012symmetric},\cite{kuang2015symnmf},\cite{yang2013overlapping},\cite{ye2018deep},\cite{zhang2012overlapping},\cite{zhang2013overlapping},
-\cite{wu2018nonnegative},\cite{psorakis2011overlapping},\cite{chakraborty2015nonnegative},\cite{huang2018robust},\cite{pei2015nonnegative},\cite{wang2011community},
-\cite{yang2012clustering},\cite{liu2017semi},\cite{shang2012graph},\cite{shi2015community},\cite{tang2014uncovering}
+A lot of matrices can be derived from graphs to reveal its structure, some of the most popular ones are degree matrix $D$, adjacency matrix $A$, Laplacian matrix$L = D-A$, normalized Laplacian matrix $D^{-1/2}LD^{-1/2}$, stochastic random walk matrix $Q=AD^{-1}$ and modularity matrix $M_{uv} = A_{uv}-d_ud_v/2|E|$. Therefore, matrix factorization by nature can be directly utilized on these matrices to learn a hidden representation on nodes. Intuitively, if each dimension of the representation is regarded as a community, the node vectors can also indicate their affiliations in each community to solve the overlapping community problem. Inspired by this, nonnegative matrix factorization has been a popular track of methods for years.
 
+\cite{wang2011community} is the first work that utilizes nonnegative matrix factorization (NMF) for community detection. In its paper, it proposes three NMF based techniques including Symmetric NMF, Asymmetric NMF and Joint NMF. The Symmetric NMF is the simplest form of graph NMF, which assumes the graph is undirected so that adjacency matrix $A$ is symmetric. The objective of Symmetric NMF turns to learn the low dimensional representation of nodes, which refers to the probability of all nodes belonging to communities:
+\begin{equation}
+		\min_{X \geq 0} ||A-XX^T||^2_F
+\end{equation}
+In a directed graph, Asymmetric NMF is used to learn a node community membership matrix $X$ and a diagonal matrix $S$ which shows the connectivity within each community. Therefore, the objective function has a small change compared with Symmetric NMF method:
 
+\begin{equation}
+\min_{X,S \geq 0} ||A-XSX^T||^2_F
+\end{equation}
+
+The Joint NMF considers an even more complex scenario which considers a heterogeneous graph whose adjacency matrix $A$ refers to the connections between the two types of nodes. $U$ and $D$ refer to the connections within each individual node type. Therefore, to learn a latent matrix $X$ to uncover the belonging relationships of two type of nodes, it considers the all three aforementioned information:  
+
+ \begin{equation}
+ \min_{X,\alpha, \beta \geq 0} ||A-X||^2_F + \alpha ||U-XX^T||^2_F + \beta ||D-X^T X||^2_F
+ \end{equation}
+ 
+SymNMF model \cite{kuang2012symmetric} comprehensively explains how to use the NMF to graph clustering. Derived from the standard NMF which decomposes on the adjacency matrix, it introduces another similar matrix $D^{-1/2}AD^{-1/2}$ and explains its equivalence to the Normalized Cut method. The paper also generalizes the similar matrix to a kernel function as $\phi(X)\phi(X)^T$. \cite{kuang2015symnmf} is a follow-up work on the same SymNMF model but with more detailed supplementary. BIGCLAM \cite{yang2013overlapping}, a previously mentioned overlapping community detection model, is also leverages nonnegative matrix factorization techniques.
+
+\cite{yang2012clustering} uses multi-step random walks to calculate node pairwise similarities. The original similarity matrix is the normalized Laplacian matrix $Q=D^{-1/2}AD^{-1/2}$ where $D$ is the diagonal degree matrix. The $j$ step node random walk similarity matrix is calculated as $(\alpha Q)^j$ where $\alpha$ is a decay factor. Summing over all possible $j$ steps. the limitation is calculated as $\sum_j^{\infty}(\alpha Q)^j = (I-\alpha Q)^{-1}$. Therefore, the all step similarity matrix is used to replace the adjacency matrix in the objective function. The goal is to learn a low dimensional node-community distribution $W$ by minimizing the reconstruction error to the similarity matrix:
+\begin{equation}
+\min_{W \geq 0} ||c^{-1}(I-\alpha Q)^{-1} - WW^T||^2_{F}
+\end{equation}
+where $c=\sum_{ij}[(I-\alpha Q)^{-1}]_{ij}$ is a normalizing factor.
+
+\cite{tang2014uncovering} proposes a two-step matrix factorization approach. First, a singular value decomposition on the adjacency matrix is calculated as $A= U\Sigma V^T$. It selects the top ranked columns in the three matrices to get a refined adjacency matrix $N$ with more condensed information. A Bayesian Nonnegative Matrix Factorization (BNMF)  \cite{psorakis2011overlapping}  is thereafter applied on the matrix $N$ by assuming each node in $N$ follows a Poisson distribution. In detail, it calculates the posterior distribution of two smaller matrices $W$ and $H$ by maximizing the posterior criterion:
+\begin{equation}
+\min_{W,H,\beta \geq 0} p(W,H,\beta|N)
+\end{equation}
+where $\beta$ is a scale hyperparameter with Gamma distribution, and $W,H$ are both with half-normal probability distributions.
+
+BNMTF \cite{zhang2012overlapping} is a bounded nonnegative matrix factorization approach which uses tri-factorization to decompose adjacency matrix $A$ into three sub-matrices $U,B,U^T$.  $U$ is the node-community matrix where each row refers to a node distribution among all communities, which is bounded between 0 to 1. $B$ is the connections between communities. The goal is to use the three matrices to regenerate a matrix $\hat{A} = UBU^T$ to let $A \approx \hat{A}$. The reconstruction error can be measured using either square loss $l_{sq}$ or KL-divergence $l_{kl}$, which are calculated as :
+\begin{equation}
+\begin{aligned} 
+l_{sq}(A,U,B) = ||A-UBU^T||^2_F \\
+l_{kl}(A,U,B) = \sum_{ij}(a_{ij}ln\frac{a_{ij}}{\hat{a_{ij}}} - a_{ij} + \hat{a_{ij}})
+\end{aligned} 
+\end{equation}
+
+where $a_{ij}$ is the related datapoint in $A$ and $\hat{a_{ij}}$ is the estimated value of $a_{ij}$.
+
+SBMF \cite{zhang2013overlapping} not only detects overlapping communities via a binary matrix factorization, but also detects node outliers from unweighted graphs. Given its binary adjacency matrix $A$, $A_{ij} = 0$ if there is no edges between node $i$ and $j$, otherwise $A_{ij} = 1$. The paper aims to find a binary community matrix $U$ where $U_it = 1$ if node $i$ in community $t$ and 0 if not. If a node $i$ belong to multiple communities, the sum of its vector will be larger than 1 ($\sum_{t} U_{it} > 1$). And $\sum_{t} U_{it} = 0$ if the node $i$ is an outlier. In its model, it assumes there are a few outlier nodes which do not belong to any community, and the outlier nodes should be as few as possible. Therefore, from the basic matrix factorization objective function, it adds a term regarding the outlier node penalty and uses L1 normalization in the matrix factorization objective:
+\begin{equation}
+\min_{U} ||A- UU^T||_1 + \sum_i [1-\Theta(\sum_j U_{ij})]
+\end{equation}
+ where $\Theta(X)$ equals to 1 if $X>0$ or 0 if $X \leq 0$.
+ 
+\cite{liu2017semi} is a semi-supervised NMF approach which involves prior information (must-links $l_{ml}$) into the NMF objective function. The prior information constructs a constraint matrix $M$ where 
+\begin{equation}
+M_{ij} = 
+\begin{cases}
+1,&   i = j\\ 
+0,  & (v_i,v_j )\in l_{ml} \\ 
+\epsilon,  & others\\ 
+\end{cases}
+\end{equation}
+The constraint matrix will be involved in the conventional objective function to learn the node-community matrix $X$:
+\begin{equation}
+\min_{X} ||A-XX^T||^2_F + \frac{\lambda}{2}\sum_{ij}||x_i - x_j||^2M_{ij}
+\end{equation}
+where $x_i$ is the $i_{th}$ row in node-community matrix $X$.  \cite{shi2015community} is a similar semi-supervised approach on unweighted, undirected graphs but with both must-links and cannot-links constraints. 
+
+Graph regularization is a typical strategy used on top of constructed graph matrices for enhancing the performance of matrix factorization models.  DNMTF \cite{shang2012graph} is a novel graph dual regularization non-negative matrix tri-factorization model which considers the graph regularized terms from both structure based and feature based perspectives. A k-nearest neighborhood method helps to construct a data graph from graph topological structure,  and a feature graph from node feature information. The objective function therefore includes three components:
+\begin{equation}
+	\min_{U,S,V \geq 0} = ||A- USV^T||^2_F + \lambda Tr(V^TL_V V) + \mu Tr(U^T L_UU)
+\end{equation}
+where $U,S,V$ are matrices need to be learned, $L_v$ and $L_U$ are related graph Laplacian matrices for data graph and feature graph. $Tr(\cdot)$ is the trace of related matrix. $\lambda$ and $\mu$ are weights for the two regularized terms.
+
+NMTF \cite{pei2015nonnegative} utilizes three types of graph regularizations to capture user similarity, message similarity and user connections seamlessly in social networks. It contains three binary graph matrices ($M_{u-u},M_{u-f}, M_{t-f}$ ), two similarity matrices ($S_{u-u},S_{t-t}$) and one binary interaction matrix ($R$). The goal of this paper aims to learn a user binary cluster matrix $U$, message binary cluster matrix $V$ and word binary cluster matrix $W$. By involving conventional NMF approach with three regularized terms, the overall objective function is defined as:
+\begin{equation}
+\begin{aligned}
+\min_{U,V,WH_1,H_2,H_3}||M_{u-u}-UH_1U^T||^2_F + ||M_{t-f}-VH_2W^T||^2_F + ||M_{u-f}-UH_3W^T||^2_F + \\
+\alpha Tr(U^TL^uU)+\beta Tr(V^TL^tUV) + \gamma  Tr(U^TL^\tau U)
+\end{aligned}
+\end{equation}
+$L^u,L^t,L^\tau$ are the Laplacian matrix of $S_{u-u},S_{t-t},R$. And $H_1,H_2,H_3$ are three matrices to be optimized. To ensure a user/message can only belong to one cluster, the objective function should be constraint by $UU^T=I$ and $VV^T=I$.
+
+MHGNMF model \cite{wu2018nonnegative} extends the graph regularizations to hypergraphs by considering high-order node information to enhance model performance. RGNMF \cite{huang2018robust} considers an extra error matrix $S$ in the conventional NMF approach:
+\begin{equation}
+\min_{U,V,S} ||A-UV^T -S||^2_F + \gamma ||S||_1 + \mu \sum_{ii^{'}}  W^U_{ii^{'}}||U_i-U_{i^{'}}||_2 + \lambda W_{jj^{'}}^V||V_j-V_{j^{'}}||_2
+\end{equation} 
+The last two terms are related graph regularized terms. 
+
+DANMF model \cite{ye2018deep} is a deep autoencode-like method to learn node communities via an encoder-decoder component. It is a very straightforward method which uses multiple layers to transform the original adjacency matrix to a low dimensional community space (decoder component). Then it uses the node-community matrix to reconstruct the original adjacency matrix (encoder component). The overall loss it the combination of two component errors with a regularization term. M-NMF model \cite{wang2017community} incorporates a NMF based node representation learning model and a modularity based community model together to optimize them jointly.
 
 \subsection{Flow-Based}
-random walk can solve ocal search community problem. some potts model, heat kernel can also be categorized here.
-\cite{rosvall2011multilevel},\cite{rosvall2014memory},\cite{persson2016maps},\cite{rosvall2008maps},\cite{jin2011markov},\cite{kloster2014heat},
-\cite{zlatic2010topologically},,\cite{he2018network},\cite{salnikov2016using},\cite{orecchia2014flow},
-\cite{liu2010detecting},\cite{li2012potts},\cite{lambiotte2012ranking},\cite{yang2014closed},\cite{wang2013fuzzy},
+Flow-based models assumes either random walks or information propagation in the graph. Through these flow-like process, the energy or information of each node will be propagated to its neighbor nodes. When this process becomes stable, the nodes contains similar type or amount information will be grouped into the same community. By nature, flow-based models are all Markov chains, as the next step node will be fully dependent on the current step node.  This type of approaches are quite scattered, random walk models, local search models, Potts model, and heat kernel based models all fall into this category. 
 
+Map Equation \cite{rosvall2008maps} is a metric to quantify how well a community can compress graph information. Derived from this metric, there are several variants are proposed to serve other more complex scenarios such as hierarchical community detection \cite{rosvall2011multilevel}, dynamic community detection \cite{rosvall2014memory} and sparse Markov chain to solve vast parameters problem in  high-order Markov chain \cite{persson2016maps}. Particularly, \cite{rosvall2014memory} shows second-order Markov dynamics in the random walks can lead to significant influence for community detection, node ranking and information propagation.  
+
+In detail, \cite{rosvall2008maps} uses a probability of random walks as an proxy of information flow in the graphs by introducing the Map Equation metric. In order to describe a random walk path, it utilizes huffman codes to encode nodes by assigning shorter codewords with hub nodes and longer codewords to rare nodes. And a path can be described as the concatenation on the codewords of all nodes appeared in the path. The goal in this approach aims to find an optimized community partition $C$ which group all nodes into $k$ communities, which has the minimum average description length of all the paths $L(M)$. The metric is defined as:
+\begin{equation} 
+ L(M) = q_{\curvearrowright}H(\mathcal{L})+\sum_{i=1}^{k} \textit{$p_{\circlearrowright}^{i}$}H(\textit{$\mathcal{P}^{i}$}) 
+\end{equation}
+This metric contains two parts: first is the entropy $H(\mathcal{L})$ of the random walks between communities, and second is the entropy $H(\mathcal{P}^{i}) $ of random walks within each community (where exiting current community also is considered a step in random walk). To minimize the Map Equation metric, a deterministic greedy search algorithm is proposed and refined via a simulated annealing process. 
+
+ \cite{rosvall2011multilevel} extends the original map equation to a hierarchical version. For a hierarchical map $M$ with $k$ communities, each community $i$ contains a submap $M^i$ and $m^i$ sub-communities, the hierarchical map equation is calculated in a nested way:
+ 
+ \begin{equation}
+ L(M)= q_{\curvearrowright}H(\mathcal{L})+\sum_{i=1}^{k} L(M^i)
+ \end{equation}
+ 
+UEOC model \cite{jin2011markov} uses Markov random walks with constraints strategy to detect overlapping communities. It contains four steps: first, select the node with maximum degree and non-community membership; second, apply random walks on the selected nodes with a constraint number of steps. Calculate the probability of each node being the end node and rank them; third, select nodes with conductance score larger than a threshold to be in the same community of target node; fourth, if there are still nodes without being assigned to at least one community, repeat the step 1 until no such nodes remained. 
+
+\cite{kloster2014heat} introduces a heat kernel based diffusion model to detect communities in a local and deterministic manner. The overall goal of this approach is to approximate a heat kernel $h$ as a diffusion function in the graph:
+\begin{equation}
+h = e^{-t} \left (\sum_{k=0}^{\infty} \frac{t^k}{k!}(P)^{k}\right)s 
+\end{equation}
+where $P=AD^{-1}$ is the random walk transition matrix and $D$ is degree matrix. $t$ is a coefficient term. And $s$ is an initialized seed vector which sums to one. In the end, the subgraphs with low conductance score will be regarded as single communities.
+
+\cite{zlatic2010topologically} studies a particular Topologically Biased Random Walk (TBRW) on graphs for community detection. A standard transition matrix $T$ is calculated as:
+\begin{equation}
+T_{Ij} = \frac{W_{ij}}{\sum_{l} W_{lj}}
+\end{equation} 
+$W_{ij}$ is the edge weight between two nodes $i$ and $j$. In a biased random walk, the edge weight can be defined as $W_{ij} = A_{ij}e^{\beta x_i}$. $x_i$ can be any defined factors such as related node degree. After the transition matrix is calculated, spectral clustering can be leveraged to select top eigenvectors as node community distributions.
+
+\cite{liu2010detecting} proposes two simulated annealing algorithms,SADI (dissimilarity-index-based) and SADD (diffusion-distance-based), to generate communities with maiximized modularity under a k-means framework. A dissimilarity index measures the proximate extent between each pair of nodes. And diffusion distance metric calculates the distance difference for each pair of nodes to the rest nodes in the graph.  Each community centroid is calculated given a certain community partition and related metrics. After that, a simulated annealing k-means function is applied to find the best partition with largest modularity based energy score.  Nodes will be merged or separated in an recurrent way according to the gain or loss of the graph modularity.
+
+\cite{li2012potts} uses Potts model via a Markov process which assumes nodes as spins and simulates spin dynamic value changes trough spin-spin correlations.  The detected dynamics are used to detect node hierarchical communities. \cite{lambiotte2012ranking} ranks nodes and detects their communities via PageRank algorithm with teleportation. Instead of standard teleportation to nodes (the next step of a random walk has a small chance to a random-selected node instead of direct-connected nodes), this paper proves the teleportation to edges can achieve a more robust community partition result.
+
+\cite{wang2013fuzzy} is a fuzzy overlapping community detection method based on distance matrix calculated via local random walks. A $t$ step local random walk (LRW) index between two nodes $i$ and $j$ is defined as:
+\begin{equation}
+s_{ij}^{LRW}(t) = \frac{k_i}{2|E|}\cdot \pi_{ij}(t) + \frac{k_i}{2|E|}\cdot \pi_{ji}(t)
+\end{equation}
+where $k_i$ is the node degree of $i$, $ \pi_{ij}(t)$ is the probability of a $t$ step random walk with start node $i$ and end node $j$. Derived from local random walk index, the $t$ step superposed random walk (SRW) index between $i$ and $j$ is calculated as $s_{ij}^{SRW}(t) = \sum_{l=1}^{t}s_{ij}^{LRW}(t)$. Subsequently, each datapoint $d_{ij}$ of the distance matrix $D$ is calculated as:
+
+\begin{equation}
+d_{ij}=
+\begin{cases}
+1- s_{ij}^{SRW}(t),    & \quad  i \neq j\\ 
+0,  & i = j\\ 
+\end{cases}
+\end{equation}
+
+After that, a standard multidimensional scaling (MDS) method is applied on $D$ to project each node into a low dimensional space. An existing fuzzy-means (FCM) method helps to learn each node fuzzy communities from the projected space.
+
+\cite{yang2014closed} discovers that three to four steps closed walks in the graph can reveal community structures veiledly. A closed walk is defined as a random walk with same start and end node. Such as a walk `1-2-3-1' is a closed walk while `1-2-3' is not. It measures an edge importance score by involving three step and four step closed walks, which is defined as:
+\begin{equation}
+	s_{ij} = \frac{z_{ij}^{(3)}+1}{min(k_i-1,k_j-1)} + \frac{z_{ij}^{(4)}+1}{min(k_i-1,k_j-1)}
+\end{equation}
+where $z_{ij}^{(k)}$ refers to the number of $k$ step closed walks that the edge $e_{ij}$ participates in. Edges are iteratively removed from the graph according to their importance score, and the remained disjoint graph components are naturally regarded as communities. 
+
+ For other works, \cite{orecchia2014flow} is a flow based local partition method which is a refined model and theoretically proves its efficiency and effectiveness.  \cite{salnikov2016using} explains second-order Markov process in graph random walks can better reveal community structure in dynamic graphs.  NetMRF \cite{he2018network} is a Markov random field model which infers node communities by belief propagation.  \cite{ibrahim2019nonlinear} proposes a class of non-linear diffusion function between nodes, and compares their performance with non-linear transformation functions in neural networks. 
 
 \subsection{Summary}
+In this section, I explore major tracks of community detection solutions and introduce the most representative works in the recent decade. In fact, these tracks are not fully independent with each other. For example, spectral clustering and stochastic block models share similar mathematical forms. And modularity methods start to be more inveloved in deep learning methods . A graph can be viewed as either a matrix to record nodes pairwise relationship or a flow where information propagates through edges. All tracks of methods are developed from these two graph understandings. There are some other tracks of approaches as well, which are either similar to existing tracks (graph cut methods is similar to spectral clustering), or classic models waiting for more exploration (information theory models).

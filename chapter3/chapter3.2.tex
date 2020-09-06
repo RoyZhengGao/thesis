@@ -1,61 +1,69 @@
 \section{genetic Personalized Community Detection}
 
 %
-My proposed gPCD model contains an offline and an online step. Figure \ref{fig:pipeline} shows the pipeline of the whole framework. The offline step first encodes the user-independent binary community tree (\textit{Section 3.1}), and subsequently learns embedding representations for both user need and nodes on the binary community tree (\textit{Section 3.2}). The online step introduces the genetic personalized community detection approach (\textit{Section 3.3}). To accelerate the running speed, a distributed version of gPCD model is also deployed on HDFS (\textit{Section 3.4}).  To disambiguate the notations mentioned in this section to better explain the gPCD model, some commonly used notations can be found in Table \ref{tab:notation}. 
+My proposed gPCD model contains an offline and an online step. Figure \ref{fig:pipeline} shows the pipeline of the whole framework. The offline step first encodes the user-independent binary community tree (\textit{Section \ref{sc:c3_offline}}), and subsequently learns embedding representations for both user need and nodes on the binary community tree (\textit{Section \ref{sc:c3_representation}}). The online step introduces the genetic personalized community detection approach (\textit{Section \ref{sc:c3_online}}). To accelerate the running speed, a distributed version of gPCD model is also deployed on HDFS (\textit{Section \ref{sc:c3_distributed}}).  To disambiguate the notations mentioned in this section to better explain the gPCD model, some commonly used notations can be found in Table \ref{tab:notation}. 
 
-\subsection{Offline Community Tree Index} 
+\subsection{Offline Community Tree Index} \label{sc:c3_offline}
 
 One challenge of solving personalized community detection problem is the computational cost due to the complexity of personalization and graph structure. In order to reduce the online workload, most of computation cost is put into the one-time offline step whose time cost can be excluded from the online personalized community detection step. Thus, I first convert the graph into a binary community tree offline to retain user-independent community information. 
+
+Infomap algorithm \cite{rosvall2011multilevel} is employed to generate the user-independent communities solely based on the graph \textit{G(V, E)}. Infomap algorithm simulates a random walker wandering on the graph and indexes the  description length of his / her random walk path via multilevel codebooks. By minimizing the description length based on the map equation below, community structures are formed for the graph.
+%\begin{equation} \small
+%\textit{$L(\mathcal{M})$} = q_{\curvearrowright}H(\mathcal{Q})+\sum_{i=1}^{m} \textit{$p_{\circlearrowright}^{i}$}H(\textit{$\mathcal{P}^{i}$}) 
+%\end{equation}
+%where $L(\mathcal{M})$ is the description length for a random walker in the current community $\mathcal{M}$. $q_{\curvearrowright}$ and $p_{\circlearrowright}^{i}$ are the jumping rates between communities and within the $i_{th}$ community. $H(\mathcal{Q})$ is the frequency-weighted average length of codewords in the global index codebook and $H(\mathcal{P}^{i})$ is frequency-weighted average length of codewords in the $i_{th}$ community codebook.
+
+\begin{equation} 
+\textit{$L(\pi)$} = \sum_{i}^{m}q_{\curvearrowright}^{i}H(\mathcal{Q})+\sum_{i=1}^{m} \textit{$p_{\circlearrowright}^{i}$}H(\textit{$\mathcal{P}^{i}$}) 
+\end{equation}
+where \textit{$L(\pi)$} is the description length for a random walker under current community partition $\pi$. $q_{\curvearrowright}^{i}$ and $p_{\circlearrowright}^{i}$ are the jumping rates between communities and within the $i_{th}$ community in each step. $H(\mathcal{Q})$ is the frequency-weighted average length of codewords in the global index codebook and $H(\mathcal{P}^{i})$ is frequency-weighted average length of codewords in the $i_{th}$ community codebook. Followed by this equation to partition communities into sub-communities , a hierarchical community tree \textit{$T_{c}(N^{c},L^{c})$} is constructed from the original graph $G(V,E)$. 
 \begin{figure}  
 	% \advance\leftskip-1cm  
-	  \center
+	\center
 	\includegraphics[width=1.0\columnwidth]{img/chapter3/4.pdf}
 	%  \vspace{-3em}
 	\caption{The framework of gPCD model. (a) refers to the offline construction step on the original graph and (b) refers to the online genetic pruning step to generate personalized communities.} 
 	\label{fig:pipeline}
 	%  \vspace{-1em} 
 \end{figure}
-\begin{table}[h]
-	%\scriptsize
-%	\small
-	\centering
-	
-	\begin{tabular}{p{3cm}p{11cm}} 
-		\toprule 
-		\textbf{Notations} & \textbf{Descriptions} \\ \midrule 
-		$G(V,E)$ & Original graph $G$ with vertex set $V$ and edge set $E$ \\ \midrule 
-		\textit{$T_{c}(N^{c},L^{c})$} & The hierarchical community tree generated from graph $G(V,E)$ with node set $N^{c}$ and link set $L^{c}$. Each node  $N^{c}_{k} \in N^{c}$ denotes a group of vertices belonging to $V$. \\ \midrule 
-		\textit{$T_{b}(N^{b},L^{b})$} & The binary community tree reconstructed from \textit{$T_{c}(N^{c},L^{c})$}. Each node $N^{b}_{k} \in N^{b}$ denotes a group of vertices belonging to $V$. \\ \midrule 
-		$B$ & The binary codebook for \textit{$T_{b}(N^{b},L^{b})$}. Particularly, $B_{k} \in B$ denotes the binary code of both $N_{k}^{b} \in N^{b}$ and $L_{k}^{b}\in L^{b}$ where $L_{k}^{b}$ is the link points to node $N_{k}^{b}$.
-		\\ \bottomrule
-	\end{tabular}
-	\caption{Commonly used notations in gPCD model}
-	\label{tab:notation}
-	\vspace{-1em}
-\end{table} 
-
-I employed the Infomap algorithm \cite{rosvall2011multilevel} to generate the user-independent communities solely based on the graph \textit{G(V, E)}. Infomap algorithm simulates a random walker wandering on the graph and indexes the  description length of his random walk path via multilevel codebooks. By minimizing the description length based on the map equation below, community structures are formed for the graph.
-\begin{equation} \small
-\textit{$L(M)$} = q_{\curvearrowright}H(\mathcal{Q})+\sum_{i=1}^{m} \textit{$p_{\circlearrowright}^{i}$}H(\textit{$\mathcal{P}^{i}$}) 
-\end{equation}
-where \textit{$L(M)$} is the description length for a random walker in the current community $M$. $q_{\curvearrowright}$ and $p_{\circlearrowright}^{i}$ are the jumping rates between communities and within the $i_{th}$ community. $H(\mathcal{Q})$ is the frequency-weighted average length of codewords in the global index codebook and $H(\mathcal{P}^{i})$ is frequency-weighted average length of codewords in the $i_{th}$ community codebook. Followed by this equation to partition communities into sub-communities , a hierarchical community tree \textit{$T_{c}(N^{c},L^{c})$} is constructed from the original graph $G(V,E)$. 
-
 In \textit{$T_{c}(N^{c},L^{c})$}, each parent node can have multiple child nodes which can be regarded as a community partition on the parent node. For instance, a node $N_{k}^{c} \in N^{c}$ from $T_{c}(N^{c},L^{c})$ represents a community of vertices.  Its $m$ child nodes $\{N_{k_{1}}^{c},N_{k_{2}}^{c},...,N_{k_{m}}^{c}\}$ represent $m$ sub-communities of vertices from $G(V,E)$ where we have $	\bigcap_{i=1}^{m} N_{k_{i}}^{c} = \varnothing$ and  $	\bigcup_{i=1}^{m} N_{k_{i}}^{c} =  N_{k}^{c}$.  
+
+
 
 In order to achieve an efficient personalized community detection in the following online step, I convert the hierarchical community tree \textit{$T_{c}(N^{c},L^{c})$} to a binary community tree \textit{$T_{b}(N^{b},L^{b})$} for index. Specifically, for $m$ child nodes of a parent node $N_{k}^{c}$, a bottom-up approach is proposed to merge a selected pair of sibling nodes as a new node in an iterative manner. The approach runs until all $m$ child nodes merged together to form the parent node $N_{k}^{c}$. To avoid an unbalanced tree where small communities are always left to merge with huge communities in the end, I first select the node with the smallest community size among all sibling nodes in each merging step. It is merged with its sibling node with the largest normalized linked weight (Please refer to Figure \ref{fig:pipeline}(a)). The normalized linked weight function $w(\cdot)$ between  two nodes $N_{i}^{c}$ and $N_{j}^{c}$ is defined as:
 \begin{equation} 
-\textit{$w(N_{i}^{c},N_{j}^{c})$} =\frac{\textit{$N_{i}^{c}\odot N_{j}^{c}$}-\frac{\mathcal{D}(N_{i}^{c})\cdot \mathcal{D}(N_{j}^{c})}{2\lVert E \rVert} }{\textit{$\lVert N_{i}^{c}\rVert\lVert N_{j}^{c}\rVert$}} 
+\textit{$w(N_{i}^{c},N_{j}^{c})$} =\frac{\textit{$N_{i}^{c}\odot N_{j}^{c}$}-\frac{\mathcal{D}(N_{i}^{c})\cdot \mathcal{D}(N_{j}^{c})}{2|E|} }{\textit{$| N_{i}^{c}||N_{j}^{c}|$}} 
 \end{equation} 
-where \textit{$N_{i}^{c}\odot N_{j}^{c}$} denotes the number of edges linked between vertices in node \textit{$N_{i}^{c}$} and \textit{$N_{j}^{c}$}, which can be interpreted as the linkage strength between them; \textit{$\lVert  N_{i}^{c}\rVert$} is the number of vertices inside node \textit{$N_{i}^{c}$}; \textit{$\mathcal{D}(N_{i}^{c})$} is the out-degree of node \textit{$N_{i}^{c}$} (the total number of edges linked to other nodes) and \textit{$\lVert E\rVert$} is the total number of edges in the original graph $G(V,E)$ . $\frac{\mathcal{D}(N_{i}^{c})\cdot \mathcal{D}(N_{j}^{c})}{2\lVert E \rVert} $ denotes the random linkage strength between node \textit{$N_{i}^{c}$} and \textit{$N_{j}^{c}$}. The \textit{$w(\cdot)$} function calculates how much that two nodes are better connected beyond random connection and is normalized by node size. Given the node $N_{i}^{c}$ with the smallest community size and all its sibling node set $S$, The merging step can be formulated as:
+where \textit{$N_{i}^{c}\odot N_{j}^{c}$} denotes the number of edges linked between vertices in node \textit{$N_{i}^{c}$} and \textit{$N_{j}^{c}$}, which can be interpreted as the linkage strength between them; \textit{$|N_{i}^{c}|$} is the number of vertices inside node \textit{$N_{i}^{c}$}; \textit{$\mathcal{D}(N_{i}^{c})$} is the out-degree of node \textit{$N_{i}^{c}$} (the total number of edges linked to other nodes) and \textit{$|E|$} is the total number of edges in the original graph $G(V,E)$ . $\frac{\mathcal{D}(N_{i}^{c})\cdot \mathcal{D}(N_{j}^{c})}{2|E|} $ denotes the random linkage strength between node \textit{$N_{i}^{c}$} and \textit{$N_{j}^{c}$}. The \textit{$w(\cdot)$} function calculates how much that two nodes are better connected beyond random connection and is normalized by node size. Given the node $N_{i}^{c}$ with the smallest community size and all its sibling node set $S$, The merging step can be formulated as:
 \begin{equation}  
 \begin{aligned} 
 & N_{j}^{c} \Leftarrow \argmax_{N_{j}^{c} \in S}w(N_{i}^{c},N_{j}^{c})\\
 & N_{*}^{c} = N_{i}^{c}\bigcup N_{j}^{c}
 \end{aligned}
 \end{equation}
-The bottom-up process will stop until all child nodes are merged together to form the parent node. In the end, the hierarchical community tree \textit{$T_{c}(N^{c},L^{c})$} is fully converted to a binary community tree \textit{$T_{b}(N^{b},L^{b})$} with user-independent community information.  The node size $\lVert  N^{b}\rVert$ as well as the link size $\lVert  L^{b}\rVert$  in \textit{$T_{b}(N^{b},L^{b})$} is at most $2\lVert V \rVert$ which is smaller than the size of original graph $G(V,E)$. If I consider to form the binary community tree with only $k$ levels, the size of \textit{$T_{b}(N^{b},L^{b})$} can be even smaller. 
+The bottom-up process will stop until all child nodes are merged together to form the parent node. In the end, the hierarchical community tree \textit{$T_{c}(N^{c},L^{c})$} is fully converted to a binary community tree \textit{$T_{b}(N^{b},L^{b})$} with user-independent community information.  The node size $|N^{b}|$ as well as the link size $|L^{b}|$  in \textit{$T_{b}(N^{b},L^{b})$} is at most $2|V|$ which is smaller than the size of original graph $G(V,E)$. If I consider to form the binary community tree with only $k$ levels, the size of \textit{$T_{b}(N^{b},L^{b})$} can be even smaller. 
 
-For running time analysis, calculating normalized linked weight takes constant time. In each merging step, node pair selection takes linear time. Therefore, in the worst case, the time complexity of binary community tree construction is $O(\rVert V\lVert^2)$ where the depth of the hierarchical community tree $T_{c}(N^{c},L^{c})$ is 1 and each vertex in $G(V,E)$ forms a single-vertex community.
+\begin{table}[h]
+	%\scriptsize
+	%	\small
+	\centering
+	
+	\begin{tabular}{|p{3cm}|p{11cm}|} 
+		\hline
+		\textbf{Notations} & \textbf{Descriptions} \\ \hline
+		$G(V,E)$ & Original graph $G$ with vertex set $V$ and edge set $E$ \\ \hline
+		\textit{$T_{c}(N^{c},L^{c})$} & The hierarchical community tree generated from graph $G(V,E)$ with node set $N^{c}$ and link set $L^{c}$. Each node  $N^{c}_{k} \in N^{c}$ denotes a group of vertices belonging to $V$. \\\hline
+		\textit{$T_{b}(N^{b},L^{b})$} & The binary community tree reconstructed from \textit{$T_{c}(N^{c},L^{c})$}. Each node $N^{b}_{k} \in N^{b}$ denotes a group of vertices belonging to $V$. \\ \hline
+		$B$ & The binary codebook for \textit{$T_{b}(N^{b},L^{b})$}. Particularly, $B_{k} \in B$ denotes the binary code of both $N_{k}^{b} \in N^{b}$ and $L_{k}^{b}\in L^{b}$ where $L_{k}^{b}$ is the link points to node $N_{k}^{b}$.
+		\\ \hline
+	\end{tabular}
+	\caption{Commonly used notations in gPCD model}
+	\label{tab:notation}
+	\vspace{-1em}
+\end{table} 
+
+
+For running time analysis, calculating normalized linked weight takes constant time. In each merging step, node pair selection takes linear time. Therefore, in the worst case, the time complexity of binary community tree construction is $O(|V|^2)$ where the depth of the hierarchical community tree $T_{c}(N^{c},L^{c})$ is 1 and each vertex in $G(V,E)$ forms a single-vertex community.
 
 To encode the nodes and links on $T_{b}(N^{b},L^{b})$ as binary code, the root node is encoded as `null' first. For a parent node \textit{$N_{k}^{b}$} with its left child node \textit{$N^{b}_{k_{l}}$} and right child node \textit{$N^{b}_{k_{r}}$}, the binary code of a child node and the related link defined in the Notation Table \ref{tab:notation} is calculated as: 
 
@@ -68,7 +76,7 @@ To encode the nodes and links on $T_{b}(N^{b},L^{b})$ as binary code, the root n
 
 For instance, if the node \textit{$N_{k}^{b}$} is with binary code ``$00$," its left child node's binary code is ``$000$" while the right child node's binary code is ``$001$." The link \textit{$L_{k}^{b}$} that points to \textit{$N_{k}^{b}$} also has the binary code ``$00$". 
 
-\subsection{Community and User Need Representation}
+\subsection{Community and User Need Representation} \label{sc:c3_representation}
 
 Node2vec \cite{grover2016node2vec} helps to learn fixed-length embeddings for both user need and communities. It simulates random walks on the graph $G(V,E)$ and learns the vertex embedding by optimizing the sequential relationships from random walk paths. In the end, each vertex $V_{k}$ in graph $G(V,E)$ has a vector representation as $\vec{V_k}$. Each node $N_{k}^{b}$ on the binary community tree \textit{$T_{b}(N^{b},L^{b})$} refers to a vertex community $C_{k}$ in the graph $G(V,E)$. Its representation $\vec{C_{k}}$ is calculated as the averaged embedding of all vertices inside the community. In the end, the binary community tree \textit{$T_{b}(N^{b},L^{b})$} represents the hierarchical community partition of Graph $G(V,E)$. Each node \textit{$N_{k}^{b}$} on the tree is indexed with three attributes: a group of vertices from graph $G(V,E)$, a binary code \textit{$B_{k}$}, and an embedding representation \textit{$\vec{C}_{k}$}.
 
@@ -89,7 +97,7 @@ For instance, in a music sharing network, each vertex $V_k$ denotes a music and 
 
 In either case, user need is conceptualized as an embedding with the same dimension as the node embeddings on the binary community tree. It enables very efficient online personalized community detection in later steps. And running Node2vec takes most of the time in this step.   
 
-\subsection{Online Genetic Pruning}
+\subsection{Online Genetic Pruning} \label{sc:c3_online}
 
 The whole process, as the Figure \ref{fig:pipeline} shows, is to generate communities by pruning the constructed binary community tree. After each cut on a link, the original tree  will be separated into two sub-trees. After a specific number of cuts to the links on the tree, a fixed number of communities with different resolutions are detected.  By applying genetic selection, crossover, and mutation steps, the model converges to the optimized solution efficiently with a clear-defined fitness function. The details are shown in the following paragraphs.
 
@@ -118,10 +126,10 @@ As each chromosome can be decoded as a community partition, it is important to m
 
 In the proposed model, the fitness function simulates the user searching behavior on the graph given the community partition. For instance, a user can be more likely to pick the most relevant communities while avoiding the redundant information already selected. With the help of the offline step, the relevance score of node $N_{i}^{b}$ (community $C_{i}$) towards user need $I$ can be calculated with the cosine similarity $cos(\vec{I},\vec{C_{i}})$, and the information redundancy can be $\sum_{C_{j} \in S_c}cos(\vec{C_{j}},\vec{C_{i}})$ where $S_{c}$ is the set of communities that the user have already picked from the communities decoded from the target chromosome. Following this, I use a greedy selection approach to iteratively rank and pick communities given a chromosome (community partition) until all communities are picked: 
 
-\begin{equation}  \argmax_{C_{i}}\lambda \cdot cos(\vec{I},\vec{C_{i}})-(1-\lambda)\cdot \frac{\sum_{C_{j} \in S_c}^{ }cos( \vec{C_j},\vec{C_{i}})}{\lVert S_c\rVert}
+\begin{equation}  \argmax_{C_{i}}\lambda \cdot cos(\vec{I},\vec{C_{i}})-(1-\lambda)\cdot \frac{\sum_{C_{j} \in S_c}^{ }cos( \vec{C_j},\vec{C_{i}})}{|S_c|}
 \end{equation} 
 
-where $C_i$ is the candidate community to be picked and $\lVert S_c\rVert$ is the number of communities already been picked. $\lambda$ is a parameter controls  whether user prefers to obtain new useful information or to avoid redundant information.  
+where $C_i$ is the candidate community to be picked and $|S_c|$ is the number of communities already been picked. $\lambda$ is a parameter controls  whether user prefers to obtain new useful information or to avoid redundant information.  
 
 For chromosome quality evaluation, a query-generated vertex ranking list $l_{q}$ is first created by retrieving top $n$ vertices relevant to the query (user need) with the largest cosine similarities on embeddings of graph $G(V,E)$. I store the top $n$ vertex ranking label $R(l_{q})=\{1,2,...,n\}$ as the pseudo ground truth. On the other hand, given the $k_{th}$ chromosome $ch_k$ in the current chromosome generation, I can also retrieve the community-generated ranking of each vertex $V_{k} \in l_{q}$ from the sequentially selected communities decoded by the chromosome. I assign the ranking label on each vertex $V_{k}$ based on the following formula:
 \begin{equation}
@@ -135,7 +143,7 @@ Then, I define the fitness function $f(\cdot)$ to evaluate the chromosome $ch_{k
 \begin{equation}
 \textit{$f(ch_{k})$} = 1-\frac{\sum_{i=1}^{n} R(l_{ci})\cdot R(l_{qi})}{\sum_{i=1}^{n} R(l_{ci})^2\cdot \sum_{i=1}^{n}R(l_{qi})^2}
 \end{equation} 
-where $R(l_{ci})$ is the $i_{th}$ vertex ranking in community-generated ranking label $R(l_{c})$ and $R(l_{qi})$ is the $i_{th}$ vertex ranking in query-generated ranking label $R(l_{q})$. Kendall's $\tau$ is a widely used metric to evaluate the correlation between two lists where higher score means stronger correlation. Thus, higher fitness score reflects that the generated community ranking ($R(l_{c})$) can better meet with user need ($R(l_{q})$). 
+where $R(l_{ci})$ is the $i_{th}$ vertex ranking in community-generated ranking label $R(l_{c})$ and $R(l_{qi})$ is the $i_{th}$ vertex ranking in query-generated ranking label $R(l_{q})$. Kendall's $\tau$ is a widely used metric to evaluate the correlation between two lists where higher score means stronger correlation. Thus, higher fitness score reflects that the generated community ranking $R(l_{c})$ can better meet with user need $R(l_{q})$. 
 
 Moreover, it is clear that the fitness function aims to separate all top $n$ vertices in different communities to get the optimal case. It matches the research goal to generate high resolution communities on vertices which are more relevant to user need. As the number of community is a given number $K$, it also leads to a coarser manner partition on the remaining less relevant vertices. On the other hand, the binary community tree $T_{b}(N^{b},L^{b})$ and the Cutting Rule 4 naturally preserve the community structure and unite the most relevant vertices in the same community. Hence the whole genetic approach is a gambling process. The final chromosome result is the equilibrium case to detect communities both contain graph topological structure and meet with user need.
 
@@ -159,7 +167,8 @@ Mutation operation is applied to avoid local optimization. If a chromosome is ch
 After $T$ iterations, the whole process stops and the current best chromosome is retrieved as the final result. Choosing the number of $T$ is dependent on the task. In order to decode the final chromosome to the related community partition, all genes in the chromosome are sorted in an ascending order based on the binary code of their stored cut link. Vertices whose binary codes start with the same cut link's binary code will be assigned to the same community label. And its later assigned community label can overwrite the previous assigned community label. For instance, if there are a vertex with binary code ``0011'' and two cut links with binary code ``00'' and ``001'', the vertex will be assigned to a community label ``00'' first, and its community label is overwritten by ``001'' afterwards. The Termination step in Figure \ref{fig:pipeline}(b) also illustrates a vivid example. In this way, the binary code of the binary community tree can help to decode the final chromosome into communities in an efficient way. 
  
 
-\subsection{Distributed gPCD}
+\subsection{Distributed gPCD} \label{sc:c3_distributed}
+ 
 To enhance the online step efficiency, a MapReduce framework is utilized to enable the distributed genetic evolution. Figure \ref{fig:distributed} depicts the personalized community detection under a MapReduce framework. The chromosome collection is either originally initialized from binary community tree or obtained from the last generation. It contains the whole chromosome population in the central depository. In its first ``Splitter'' process, all chromosomes are split into $M$ groups based on their hash values and sent out to related $M$  Mappers to calculate the ``Fitness'' scores. In the same Mapper, after all chromosomes are assigned fitness scores, based on their scores, a Combiner groups all chromosomes together and random select equal number of chromosomes with duplicated as the ``Selection'' step. All the selected chromosomes are sent to $R$ reducers (I set $R = M$ arbitrarily in order to better represent time complexity) to form pairs for the ``Crossover'' and  ``Mutation'' step, calculate new chromosome offsprings for the next generation and store them back to the central repository. 
  
 \begin{figure}  

@@ -1,2 +1,33 @@
 \section{Contribution}
-explain the contribution of this thesis such as categorizing the community detection into several forms, solve the three research questions, etc.
+In this dissertation, I summarize a rich selection of existing works and propose three different community detection tasks. In the literature review, from the more than one thousand candidate papers published in the recent decade, I select around three hundred highly representative works and define my own taxonomy to categorize them. Compared with other survey papers (which are also briefly discussed in this dissertation), my literature review is better categorized and contains more comprehensive and state-of-the-art studies. It also highlights the application and evaluation of community detection, two topics which have largely escaped mention in previous surveys.
+
+In terms of the first research task (personalized community detection), the contribution of this study is threefold:
+
+\begin{itemize}
+	\item I address a novel personalized community problem and propose a model to generate communities of varying resolution in response to user needs.
+	\item The proposed model contains an offline and an online step. The offline step takes charge of most calculation to enable an efficient online step: the construction of the binary community tree has a time complexity of $O(|V|^{2})$ in the worst case where $|V|$ denotes the number of vertices in the graph; representation learning on the both binary community tree and user needs has the same time complexity as Node2vec \cite{grover2016node2vec}. The online genetic pruning step running under the parallel environment achieves $O(\frac{2^dKP}{M})$ time complexity where $d$ denotes the depth of the tree, $K$ denotes the community number, $P$ denotes the initialized population size in the genetic approach and $M$ denotes the number of Mappers/ Reducers in the Hadoop Distributed File System (HDFS). 
+	\item I evaluate the proposed model on a scholarly graph and a music graph. In my model, the offline step is separately calculated and  remains unchanged once constructed, while the online step guides the personalized community detection. Hence I only compare the online step results with baselines' performance. Extensive experiments show that my model outperforms the baselines in terms of both accuracy and efficiency.
+\end{itemize}
+
+This paper’s treatment of cross-graph community detection (the second task) makes four main contributions: 
+\begin{itemize}
+	\item I propose a novel problem, Cross-Graph Community Detection, which can be critical for thousands of small businesses or services if they enable external user account login.
+	
+	\item My method departs from conventional community detection methods in exploring community structure from a pairwise viewpoint. In this way, I can efficiently deal with heterogeneous graph information and solve cold-start problem for users with no recorded behaviors in sparse graphs.
+	
+	\item The proposed model is trained in an end-to-end manner where a two-level filtering module locates the most relevant information to propagate between graphs. A Community Recurrent Unit (CRU) subsequently learns user community distribution from the filtered information.
+	
+	\item Extensive experiments on two real-world cross-graph datasets validate my model’s superiority. I also evaluate my model’s robustness on graphs with varied sparsity scales and conduct many other supplementary studies.
+	
+\end{itemize} 
+
+For the third problem, i.e., community-aware product summarization, the contribution of this work is threefold:
+
+\begin{itemize}
+	\item To the best of my knowledge, this is the first effort to leverage user behavior for dynamic product summarizations. This work pioneers the investigation of behavior-based summarization.
+	\item In my model, a reinforcement learning approach learns the sampling strategy on seed products with rewards from both community distribution (calculated from behavior-to-community prediction) and semantic (calculated from summarization generation) viewpoints. When generating product summarization, my model does not require the target product’s reviews as an input; thus, it is able to solve the problem of review sparseness, even in a zero-review scenario.
+	\item  Experiments on a large e-commerce dataset show that my proposed model significantly outperforms the baselines from both automatic and human perspectives. Extensive studies also prove the efficacy of each model input component.   
+\end{itemize}
+
+In the final chapter, I summarize the contributions of all previous chapters. Meanwhile, the limitations of this study and the community detection domain are discussed as well. To tackle these limitations, future studies are suggested, highlighting broader potential tracks and research problems in community detection. In particular, deep learning methods and disciplinary analysis are two classes of approach with the greatest potential.
+ 

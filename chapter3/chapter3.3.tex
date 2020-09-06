@@ -8,19 +8,19 @@
 	%\scriptsize
 	\centering
 	
-	\begin{tabular}{ccccc} 
-		\toprule
-		\multirow{2}{*}{\textbf{Dataset}}  &\multicolumn{2}{c}{\textbf{Node description }} & \multicolumn{2}{c}{\textbf{Edge description}}\\ \cmidrule(lr){2-5}%\cmidrule(lr){4-5}
-		& Type & Size & Type & Size \\ \midrule 
-		Scholarly & paper & 166,170 & citation &750,181\\ \midrule 
+	\begin{tabular}{|c|c|c|c|c|} 
+		\hline
+		\multirow{2}{*}{\textbf{Dataset}}  &\multicolumn{2}{c|}{\textbf{Node description }} & \multicolumn{2}{c|}{\textbf{Edge description}}\\ \cline{2-5}%\cmidrule(lr){4-5}
+		& Type & Size & Type & Size \\ \hline
+		Scholarly & paper & 166,170 & citation &750,181\\ \hline
 		Music & song & 145,203 & co-listening &1,172,525
-		\\ \bottomrule
+		\\ \hline
 	\end{tabular}
 	\caption{Dataset Description}
-	\label{tab:dataset}
+	\label{tab:c3_dataset}
 \end{table} 
 
-Table \ref{tab:dataset} shows the statistics of the two datasets.  The scholarly graph is unweighted and directed, while the music graph is a weighted and undirected.
+Table \ref{tab:c3_dataset} shows the statistics of the two datasets.  The scholarly graph is unweighted and directed, while the music graph is a weighted and undirected.
 
 \textbf{Scholarly Graph:} It contains academic publications with metadata extracted from ACM Digital Library. From the dataset, I build the experimental graph via paper citation relationship. Each vertex in the graph represents a paper, and if a paper cites another paper, there will be an edge linking the two. My model aims to detect personalized communities on the scholarly graph for authors. For each author in the dataset, I represent his/her need in two ways: their previous publications (text-based query) and cited paper history (vertex-based query).  
 
@@ -47,13 +47,13 @@ F1-score (F1), Rand index (Rand), Jaccard index (Jaccard) and running time are r
 Considering both efficacy and efficiency, I select eight widely used user-independent community detection models. Ideally, to achieve personalized community detection, user-independent models should run on each user separately by assigning higher weights on user related edges. Thus, their time complexity should be only compared with my online step time complexity as my offline step is independent with user numbers. In this paper, to run baselines within acceptable time, I report their user-independent community results as the average performance. 
 
 \begin{itemize}
-	\item \textbf{Spinglass}: Spinglass  constructs communities by minimizing the Hamiltonian score on signed graphs.\footnote{https://github.com/antoine-lizee/SG}.
-	\item \textbf{Fast Greedy} (FG): Fast Greedy  is a greedy search method to get the maximized modularity for community detection.\footnote{https://github.com/kjahan/community}.
-	\item \textbf{Louvain}: Louvain  is an agglomerative method to construct communities in a bottom-up manner guided by modularity.\footnote{https://github.com/taynaud/python-louvain}. 
-	\item \textbf{Walktrap}: Walktrap detects communities based on the fact that a random walker tends to be trapped in dense part of a network.\footnote{https://www-complexnetworks.lip6.fr/~latapy/PP/walktrap.html}.
-	\item \textbf{Infomap}: Infomap generates communities by simulating a random walker wandering on the graph and indexing the description length of his random walk path via multilevel codebooks.\footnote{http://www.mapequation.org/code.html}.
-	\item \textbf{Bigclam}: Bigclam generates overlapping communities via a non-negative matrix factorization approach.\footnote{https://github.com/snap-stanford/snap/tree/master/examples/bigclam}.
-	\item \textbf{DeepWalk}: DeepWalk generates node embeddings via random walks and utilizes K-means on node embeddings to detect communitis.\footnote{https://github.com/phanein/deepwalk/tree/master/deepwalk}.
-	\item \textbf{Node2vec}: Node2vec is an extended version of DeepWalk with a refined random walk strategy.\footnote{https://github.com/aditya-grover/node2vec}.
+	\item \textbf{Spinglass} \cite{eaton2012spin}: Spinglass  constructs communities by minimizing the Hamiltonian score on signed graphs.\footnote{https://github.com/antoine-lizee/SG}
+	\item \textbf{Fast Greedy} (FG) \cite{clauset2004finding}: Fast Greedy  is a greedy search method to get the maximized modularity for community detection.\footnote{https://github.com/kjahan/community}
+	\item \textbf{Louvain} \cite{blondel2008fast}: Louvain  is an agglomerative method to construct communities in a bottom-up manner guided by modularity.\footnote{https://github.com/taynaud/python-louvain}
+	\item \textbf{Walktrap} \cite{pons2005computing}: Walktrap detects communities based on the fact that a random walker tends to be trapped in dense part of a network.\footnote{https://www-complexnetworks.lip6.fr/~latapy/PP/walktrap.html}
+	\item \textbf{Infomap} \cite{rosvall2011multilevel}: Infomap generates communities by simulating a random walker wandering on the graph and indexing the description length of his random walk path via multilevel codebooks.\footnote{http://www.mapequation.org/code.html}
+	\item \textbf{Bigclam} \cite{yang2013overlapping}: Bigclam generates overlapping communities via a non-negative matrix factorization approach.\footnote{https://github.com/snap-stanford/snap/tree/master/examples/bigclam}
+	\item \textbf{DeepWalk} \cite{perozzi2014deepwalk}: DeepWalk generates node embeddings via random walks and utilizes K-means on node embeddings to detect communitis.\footnote{https://github.com/phanein/deepwalk/tree/master/deepwalk}
+	\item \textbf{Node2vec} \cite{grover2016node2vec}: Node2vec is an extended version of DeepWalk with a refined random walk strategy.\footnote{https://github.com/aditya-grover/node2vec}
 \end{itemize}
 
